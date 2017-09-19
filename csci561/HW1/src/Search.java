@@ -29,6 +29,25 @@ public class Search {
         }
     }
 
+    public static boolean cornerCaseCheck(char[][] state, int n)
+    {
+        int empty = 0;
+        int tree=0;
+        for(int i = 0; i<state.length; i++)
+        {
+            for (int j = 0; j<state.length; j++)
+            {
+                if(state[i][j] == '0') empty+=1;
+                if(state[i][j] == '2') tree+=1;
+            }
+        }
+        if(empty<n) return false;
+        if(tree==0 && n>state.length) return false;
+        return true;
+
+
+    }
+
     private Node removeHead() {
         try {
             return nodes.remove(0);
@@ -154,10 +173,12 @@ public class Search {
         int currVal, nextVal, t = 2;
         double T, p;
         char[][] nextState;
-        while(true)
+        long startTime = System.currentTimeMillis();
+        long currTime = startTime;
+        while((currTime-startTime)<280000)
         {
             T = schedule(t);
-            System.out.print("\nIteration "+t+", T = "+T);
+            System.out.print("\rIteration "+t+", T = "+T);
 
             if(T == 0 || Node.strongGoalCheck(this.saState, this.numLizard)) return this.saState;
             //saState.printNode();
@@ -165,12 +186,12 @@ public class Search {
             System.out.print(", value: "+currVal);
             nextState = randomNextState();
             nextVal = value(nextState);
-
+            currTime = System.currentTimeMillis();
             if(currVal < nextVal) saState.setState(nextState);
             else {
                 p = Math.exp(((double)(nextVal-currVal))/T);
                 System.out.print(", p = "+p);
-                if(update(p)) {
+                if(update(p) && (currTime-startTime)<270000) {
                     saState.setState(nextState);
                     System.out.print(", Accepted bad state");
                 }
@@ -178,6 +199,7 @@ public class Search {
 
             t+=1;
         }
+        return null;
     }
 
     private Node startDFSOrBFS() {

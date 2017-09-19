@@ -1,8 +1,18 @@
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class Main {
+
+    private static void writeToOutput(String s)
+    {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("./output.txt", false));
+            writer.append(s);
+            writer.close();
+        }catch(Exception e)
+        {
+            System.out.println("FAILED TO WRITE OUTPUT FILE.");
+        }
+    }
 
     public static void main(String[] args) {
 
@@ -30,17 +40,23 @@ public class Main {
                 }
                 i++;
             }
-
-            Search search = new Search(new Node(initialState, 0), boardSize, numLizard, method);
-            //search.printSearch();
-            Node result = search.start();
-            if(result!=null){
-                System.out.println("\nSUCCESS!");
-                System.out.println(result);
-                System.out.println("Strong goal check: "+Node.strongGoalCheck(result, numLizard));
+            if(Search.cornerCaseCheck(initialState, numLizard)) {
+                Search search = new Search(new Node(initialState, 0), boardSize, numLizard, method);
+                //search.printSearch();
+                Node result = search.start();
+                if (result != null) {
+                    System.out.println("\nSUCCESS!");
+                    System.out.println(result);
+                    System.out.println("Strong goal check: " + Node.strongGoalCheck(result, numLizard));
+                    writeToOutput("OK\n" + result.toString());
+                }
+                else {
+                    System.out.println("\nFAIL!");
+                    writeToOutput("FAIL");
+                }
             }else{
-                System.out.println("\nFAIL!");
-                System.out.println(search.inQueue.size());
+                System.out.println("CORNER CASE.\nFAIL!");
+                writeToOutput("FAIL");
             }
 
         }catch(Exception e)

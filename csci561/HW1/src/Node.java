@@ -131,7 +131,7 @@ public class Node {
         {
             for(int j=0; j<this.state[i].length;j++)
             {
-                result+=((state[i][j]=='3'?'0':state[i][j])+"\t");
+                result+=((state[i][j]=='3'?'0':state[i][j]));
             }
             result+="\n";
         }
@@ -199,20 +199,10 @@ public class Node {
     public boolean random(int n)
     {
         int i = 0, randomI, randomJ;
-        for(int k = 0; k<this.state.length; k++)
-        {
-            for (int j = 0; j<this.state.length; j++)
-            {
-                if(this.state[k][j] == '0') i+=1;
-            }
-        }
-        if(i<n) return false;
-
-        i = 0;
         while(i<n)
         {
-            randomI = (int)(Math.random()*n);
-            randomJ = (int)(Math.random()*n);
+            randomI = (int)(Math.random()*(state.length));
+            randomJ = (int)(Math.random()*(state.length));
             if(this.state[randomI][randomJ]=='0') {
                 i += 1;
                 this.state[randomI][randomJ] = '1';
