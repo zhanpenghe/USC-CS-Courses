@@ -1,16 +1,16 @@
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Random;
 
 public class Search {
 
     List<Node> nodes = null;
-    Set<Node> inQueue = null;
     Node saState = null;
+    Random rand;
+
 
     int method = -1;//0==BFS, 1==DFS
-    int count = 0;
+
     int boardSize;
     int numLizard;
 
@@ -21,12 +21,15 @@ public class Search {
         this.method = method;
         if(this.method == 1||this.method ==0){
             nodes = new LinkedList<>();
-            inQueue = new HashSet<>();
             nodes.add(node);
         }else if (this.method == 2)
         {
             saState = node;
+            rand = new Random();
         }
+    }
+    private double schedule (double n) {
+        return Math.min((double)this.boardSize, (double)this.numLizard)/Math.log(n)/(Math.min(3.5, this.boardSize));
     }
 
     public static boolean cornerCaseCheck(char[][] state, int n)
@@ -44,8 +47,6 @@ public class Search {
         if(empty<n) return false;
         if(tree==0 && n>state.length) return false;
         return true;
-
-
     }
 
     private Node removeHead() {
@@ -61,11 +62,6 @@ public class Search {
         if(this.method == 1||this.method ==0) return startDFSOrBFS();
         else if(this.method == 2) return startSA();
         else return null;
-    }
-
-    private double schedule(int t)
-    {
-        return 0.8*1/Math.log((double) t);
     }
 
     private int value(char[][] currState)
@@ -125,101 +121,91 @@ public class Search {
 
     private char[][] randomNextState()
     {
-        char[][] result = new char[this.boardSize][this.boardSize];
-        int randomCount = 1+(int)(Math.random() * (this.numLizard));
-        int randomI, randomJ;
-        for(int i =0; i<this.boardSize;i++)
-        {
-            for(int j =0; j<this.boardSize; j++)
-            {
-                if(result[i][j] == '1') continue;
-                if(this.saState.getState()[i][j] == '1')
-                {
-                    randomCount-=1;
-                    if(randomCount == 0)
-                    {
-                        result[i][j] = '0';
-                        while(true)
-                        {
-                            randomI = (int)(Math.random() * (this.boardSize));
-                            randomJ = (int)(Math.random() * (this.boardSize));
-                            if(this.saState.getState()[randomI][randomJ] == '0'){
-                                result[randomI][randomJ] = '1';
-                                break;
-                            }
-                        }
-                    }else result[i][j] = this.saState.getState()[i][j];
-                }
-                else result[i][j] = this.saState.getState()[i][j];
-            }
-        }
+        char[][] result = new char[this.boardSize][];
+        char[][] currState = saState.getState();
+        for (int i=0; i<this.boardSize; i++) result[i] = currState[i].clone();
 
+        int lizCount = rand.nextInt(numLizard);
+
+        boolean done = false;
+        for(int i = 0;i<this.boardSize;i++)
+        {
+            for(int j = 0;j<this.boardSize;j++)
+            {
+                if(currState[i][j] == '1'){
+                    if(lizCount == 0) {
+
+                        int randomI = rand.nextInt(boardSize);
+                        int randomJ = rand.nextInt(boardSize);
+                        while (result[randomI][randomJ] != '0') {
+                            randomI = rand.nextInt(boardSize);
+                            randomJ = rand.nextInt(boardSize);
+                        }
+
+                        result[randomI][randomJ] = '1';
+                        result[i][j] = '0';
+                        done = true;
+                        break;
+                    }
+                    lizCount--;
+
+                }
+            }
+            if(done) break;
+        }
         return result;
     }
 
     private boolean update(double p)
     {
-        if(p<0.0 || p>1.0) return false;
-
-        double temp = Math.random();
-        System.out.print(", random: "+temp);
-        return (temp<=p);
+        return (Math.random()<=p);
     }
 
     private Node startSA()
     {
         //init random state
         this.saState.random(this.numLizard);
-        int currVal, nextVal, t = 2;
+        int currVal = value(saState.getState()), nextVal, t = 2;
         double T, p;
         char[][] nextState;
         long startTime = System.currentTimeMillis();
         long currTime = startTime;
+
         while((currTime-startTime)<280000)
         {
             T = schedule(t);
-            System.out.print("\rIteration "+t+", T = "+T);
+            System.out.print("\rIteration "+t+", T = "+T+"， val = "+currVal);
 
-            if(T == 0 || Node.strongGoalCheck(this.saState, this.numLizard)) return this.saState;
-            //saState.printNode();
-            currVal = value(saState.getState());
-            System.out.print(", value: "+currVal);
+            if(currVal == 0) return this.saState;
             nextState = randomNextState();
             nextVal = value(nextState);
+
             currTime = System.currentTimeMillis();
-            if(currVal < nextVal) saState.setState(nextState);
+            if(currVal <= nextVal){
+                saState.setState(nextState);
+                currVal = nextVal;
+            }
             else {
                 p = Math.exp(((double)(nextVal-currVal))/T);
-                System.out.print(", p = "+p);
                 if(update(p) && (currTime-startTime)<270000) {
                     saState.setState(nextState);
-                    System.out.print(", Accepted bad state");
+                    currVal = nextVal;
                 }
             }
-
             t+=1;
         }
         return null;
     }
 
     private Node startDFSOrBFS() {
-        int i = 0;
         while (nodes.size() > 0) {
             try {
                 Node curr = removeHead();
-                if(curr.getNumOfLizard()>i){
-                    count=0;
-                    i++;
-                }
-                System.out.print("\rDone with "+i+", Count: "+count);
-                count+=1;
                 if (curr.goalCheck(this.numLizard)) return curr;
-
                 expand(curr);
             } catch (Exception e) {
                 continue;
             }
-            //printSearch();
         }
         return null;
     }

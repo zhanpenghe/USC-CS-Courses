@@ -15,8 +15,16 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        for(int i = 0 ; i<10000; i++)
+        {
+            System.out.println("\nTEST #"+i);
+            test();
+        }
+    }
 
-        String inputFilePath = "/Users/adamhzp/Desktop/workspace/csci561/hw1/out/resources/input1.txt";
+    private static void test() {
+
+        String inputFilePath = "input.txt";
         int boardSize = 0, numLizard, method;
 
         try{
