@@ -1,0 +1,108 @@
+
+Problem solving
+
+UNINFORMED SEARCH: DFS, BFS
+INFORMED SEARCH: best-first, A*
+
+----
+Problem-Solving Agent
+
+function solve-agent(p): returns an action
+	input:	p, a percept
+	static: s, an action sequence, initially empty
+		state: some description of the current world state
+		g: a goal, initially null
+		problem, problem formulation----5 components
+
+	state<-update-state(state, p)   //get state from percetion
+	if s is empty then
+		g<-form-goal(state)	//from LA to san diego
+		problem<-form-problem(state, g)
+		s<-SEARCH(problem)
+	action<-recommendation(s, state)
+	s<-remainder(s, state)
+	return action
+
+----
+
+State: representation of physical configuration
+Node: parent node, child node, depth, path cost g(x)
+
+A search strategy is defined by picking the order of node expansion.
+
+Search Strategy Evaluation:
+	- completeness: does it always find a solution if one exists
+	- time complexity
+	- space complexity
+	- optimality: does it guarantee the least-cost solution
+
+Time and space complexity:
+	b: max branching factor of the search tree
+	d: depth of the least-cost solution
+	m: max depth of the search tree (may be infinity)
+
+Depth starts from 0.
+
+Why worry about the complexity? --- because a problem may be solvable in principle but may take too long to solve in practice.
+
+-----
+UNINFORMED SEARCH STRATEGIES
+	- BFS
+	- Uniform-cost
+	- DFS
+	- Depth-limited
+	- Iterative deepening
+
+
+BFS:
+	Completeness: yes, if b is finite
+	Time-complexity: 1+b^2+b^3+...+b^d = O(b^d)
+	Space: O(b^d)
+	Optimality: Yes(cost = 1/step)
+
+
+Uniform-cost search: 
+	QUEUEINGFN = insert in order of increasing path cost. i.e. focus on the past cost of path.
+
+	BFS = uniform-cost with path cost==node depth
+	
+	Completeness: yes, if step cost>=0
+	Time: O(b^d)
+	Space: O(b^d)
+	Optimality: yes as long as path depth does not decrease. NOT OPTIMAL WHEN ANY NODE IN THE QUEUE HAS A GOAL STATE(since it doese not check the future)
+
+DFS:
+	Completeness: No. fails in infinite state-space(yes if finite state space)
+	Time: O(b^m)
+	Space: O(bm)
+	Optimality: No
+
+Depth-limited search
+	= DFS with depth limit l
+	
+	Implementation: Nodes at depth l have no successors
+	Complete: if cutoff chosen appropriately then it is guaranteed to find a solution
+	Optimal: it does not guarantee to find the least cost solution
+
+Iterative deepening search:
+
+function Iterative-deepening-search(problem) return a solution or failure:
+	for depth=0 to infinity:
+		result = Depth-Limited-Search(problem, depth)
+		if result succeeds then return result
+	
+	return failure
+
+	Completeness: Yes
+	Time: O(b^d)
+	Space: O(b*d)
+	Optimality: yes if step cost = 1
+
+
+	
+
+
+	
+	
+
+

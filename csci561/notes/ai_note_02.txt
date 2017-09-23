@@ -1,0 +1,45 @@
+INFORMED SEARCH
+	- Best first 
+	- A*
+	- Heuristics
+	- Hill-climbing
+	- Simulated annealing
+
+---
+Best-First Search
+
+	idea: use an evaluation function for each node; estimate of desirability. expand most desirable unexpanded node
+
+	Implementation: QueueingFn = insert successors in decreasing order of desirability
+	
+	special cases: greedy search, A* search
+
+---
+Gready Search
+	
+	Esitimation function:
+		h(n) = estimate of cost from n to goal(heuristic)
+	Only care about the estimated cost in the FUTURE.
+
+	Completeness: NO. get stucked in loop 
+	Time: O(b^m)
+	Space: O(b^m)
+	Optimal: No
+---
+A*
+	Idea: avoid expanding paths that are already expensive. i.e. care about both the past and the future.
+
+	evaluation function: f(n) = g(n)+h(n)
+		g(n)---> past cost
+		h(n)---> estimated future cost
+		f(n)---> estimated total cost from root to goal
+
+	A* search uses an admissible heuristic, that is h(n) <= h*(n) where h*(n) is the true cost from n
+
+
+	A* is optimal
+
+	For some admissible heuristics function, f might decrease along the path. To get better estimation, we can use pathmax:
+	f(n+1) = max(g(n+1)+h(n+1), f(n))
+	
+

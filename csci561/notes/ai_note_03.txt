@@ -1,0 +1,46 @@
+ITERATIVE IMPROVEMENT
+
+-----
+Hill Climbing
+
+	Iteratively maximiaze the "value" of current state, by replacing it by successor state that has highest value, as long as possible
+
+function hill-climbing(problem) return a solution state
+	input:		problem
+	local var:	current, a current node
+			next, a next node
+	
+	current <- make-node(initial-state(problem))
+	while true:
+		next <- a highest valued successor of current
+		if value(next) < value(current) then return current
+		curr <- next
+	end
+
+-----
+SA (Simulated Annealing)
+
+function Simulated-Annealing return a solution state
+	input:		problem
+			schedule: a mapping from time to temperature
+	local var:	current, a node
+			next, anode
+			T, a temperature var
+
+	current <- make-node(initial-state(problem))
+	for t <- 1 to infinity:
+		T <- schedule(t)
+		if T = 0 then return current
+		next <- random successor of current 
+		delta_E = value(next) - value(current)
+		if delta_E>0 then current <- next;
+		else current <- next only with probability p = e^(delta_E/T)
+
+
+	
+	Completeness: yes, if T converge to 0
+	Optimal: yes if T decrease slower than 1/log(n)
+
+
+
+
