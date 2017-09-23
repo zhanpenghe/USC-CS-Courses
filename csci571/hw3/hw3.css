@@ -1,0 +1,208 @@
+*{
+	font-family: "Helvetica Neue", Helvetica;
+}
+
+a{
+	text-decoration: none;
+	color:white;
+}
+
+td {
+    vertical-align: baseline;
+}
+td img {
+    vertical-align: top;
+}
+
+body{
+	background-color: #004272;
+	margin-left: 0em;
+	margin-right: 0em;
+}
+
+.topbar{
+	background-color: white;
+	width: 100%;
+	border-style: none;
+}
+
+#topcenter {
+	width: 1070px;
+	height: 100%;
+}
+
+.bottom{
+	background-color: white;
+	width: 100%;
+	border-style: none;
+}
+
+.in-line{
+	display: inline-block;
+	vertical-align:middle;
+}
+
+#middle{
+	height: 457px;
+	width: 1070px;
+
+}
+
+.center{
+	margin: 0px auto;
+	display: block;
+}
+
+.centeredtable{
+	margin: 0px auto;
+	margin-top: 40px;
+	text-align: left;
+	padding-bottom: 30px;
+}
+
+.subtitle{
+	font-size: 130%;
+	font-weight: 500;
+	margin-bottom: 3px;
+}
+
+.detail{
+	font-size:100%;
+	line-height: 140%;
+}
+
+#button1{
+	border-radius: 5px;
+ 	border-style: solid;
+ 	border-width: 1px;
+ 	border-color: #c60935;
+ 	background: #c60935;
+ 	box-shadow: inset 0px 0px 5px white;
+ 	padding: .7rem 1.4rem;
+ 	color: white;
+ 	font-size: 120%;
+ 	width: 100px;
+ 	margin-left: 13px;
+ 	text-shadow: 1px 1px black;
+ 	width:100px;
+ 	text-align: center;
+}
+
+#button2{
+	display: inline-block;
+ 	border-radius: 5px;
+ 	border-style: solid;
+ 	border-width: 1px;
+ 	border-color: #c60935;
+ 	background: #c60935;
+ 	box-shadow: inset 0px 0px 5px white;
+ 	padding: .7rem 1.4rem;
+ 	color: white;
+ 	font-size: 120%;
+ 	width: 95px;
+ 	text-shadow: 1px 1px black;
+}
+
+#buttonlink{
+	margin-left: 370px;
+}
+
+#button1:hover{
+	background-color: #87002f;
+}
+
+#button2:hover{
+	background-color: #87002f;
+}
+
+#call{
+	text-align: right;
+	margin-left: 150px;
+	color: #0087d9;
+	font-weight: 600;
+	font-size: 115%;
+	margin-top: 0px;
+}
+
+#needmoney{
+	color: white;
+	font-size: 370%;
+	line-height: 95%;
+	padding-top: 76px;
+	text-align: center;
+
+}
+
+#loans{
+	vertical-align: middle;
+	color: white;
+	font-size: 220%;
+	padding-top: 50px;
+	text-align: center;
+
+}
+
+#why{
+	text-align: center;
+	color: #0087d9;
+	font-size: 270%;
+	width: 1070px;
+	line-height: 99%;
+
+}
+
+#icon{
+	margin-left: 75px;
+	margin-top: 15px;
+	margin-bottom: 5px;
+}
+
+#applybutton{
+	margin-left: 10px;
+	margin-top: 10px;
+}
+
+#inlinepic{
+	display: inline-block;
+	vertical-align:middle;
+	padding-left: 270px;
+}
+
+#button2andlogo{
+	text-align: center;
+	margin-top: 36px;
+}
+
+#tablediv{width: 1070px;}
+
+.check{width: 50px;}
+#legal1{
+	text-align: left;
+	color: white;
+	margin: 0 auto;
+	width: 980px;
+	padding-top: 5px;
+	padding-bottom: 2px;
+}
+#legal2{
+	text-align: left;
+	margin: 0 auto;
+	width: 980px;
+	padding-bottom: 2px;
+}
+#legal3{
+	text-align: left;
+	color: white;
+	margin: 0 auto;
+	width: 980px;
+}
+
+.slimbar{background-color: #0087d9; width: 100%; height: 10px;}
+.words{width: 230px; height: 150px;}
+.underline:hover{
+	text-decoration: underline;
+}
+#legallinks{width:1070px; text-decoration: none;
+	 padding-top: 10px; padding-bottom: 1px;}
+.dot{color:#0087d9; }
+.line{background-color: #0087d9; height: 1px; margin-top: 10px; margin-bottom: 10px;}
