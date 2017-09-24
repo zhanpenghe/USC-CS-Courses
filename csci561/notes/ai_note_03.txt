@@ -41,6 +41,18 @@ function Simulated-Annealing return a solution state
 	Completeness: yes, if T converge to 0
 	Optimal: yes if T decrease slower than 1/log(n)
 
+-----
+Genetic Algorithm: to find a solutio in large complex space
+
+	1. Represent a solution like a DNA sequence
+	2. Rank the population by their fitness - we need to be able to measure fitness in polynomial time, otherwise we are in trouble
+	3. Breed the population (combine the better fitness ones)
+		- crossover: exchanging information thru some part of information 
+		- better fitness people should mate more often and poor fitness people should mate less often
+		- not all crossed pairs are viable and different GA problems may have different bounds
+		- many GA problems need special crossover rules 
+		- to get over local extrema, we need to introduce random effect: Mutation, Cataclysm, Annealing of Mating Pairs
 
 
+	GA is good if your space is loaded with lots of weird bumps and local minima; if dont understand the process of the problem space; if you have a lot of processors
 

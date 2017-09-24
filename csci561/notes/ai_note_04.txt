@@ -1,0 +1,61 @@
+GAME PLAYING
+
+----
+What kind of game:
+
+	- Abstraction: to describe a game we must capture every relevant aspect of the game
+	- Accessible environments: such games are characterized by perfect information
+	- Search: consists of a search thru possible game positions
+	- Unpredictable opponent:introduces uncertainty thus gamplaying must deal with contingency problems
+	- Complexity: many games have a huge search space
+	- Resource(time, memory): optimal solution not feasible/possible, thus must approximate
+
+	1. Pruning
+	2. Evaluation function
+
+-----
+Two player games:
+	A game formulated as search problem:
+		- initial state: board position and turn
+		- operators: definition of legal moves
+		- Terminal state: conditions for when game is over
+		- Utility function: a numeric value that describe the outcomeof the game a.k.a. payoff function
+
+	Game to know for the midterm: chess, checkers, go, othello, backgammon, monopoly, bridge, poker, scrabble, bridge
+
+----
+The Minimax algorithm
+	Perfect play for deterministic environment with perfect information
+	Basic idea: choose move with highest minimax value = best achievable payoff against best play
+
+	Algorithm:
+	1. Generate game tree completely
+	2. Determine utility of each terminal state
+	3. propagate the utility values upward in the three by applying Min and Max operators on the nodes in the current level
+	4. At the root node use minimax decision to select the move with the max(of the min) utility value
+
+---
+Alpha-Beita pruning
+
+	Pruning does not affect final result
+	
+	With perfect ordering, time complexity = O(b^(m/2))
+	
+
+ function max-value(state, alpha, beita, game) return the minimax value of the state:
+	
+	if(cuttoff(state)) return eval(state)
+	for s in successor(state):
+		alpha = Max(alpha, min-value(state, alpha, beita, game))
+		if (alpha >= beita) return beita
+	return alpha 
+
+function min-value(state, alpha, beita, game) return the minimax value of the state:
+	
+	if(cutoff(state)) return eval(state)
+	for s in successor(state):
+		beita = Min(beita, max-value(state, alpha, beita, game))
+		if (beita <= alpha) return alpha
+	return beita
+
+

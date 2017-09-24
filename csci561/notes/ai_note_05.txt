@@ -1,0 +1,86 @@
+CONSTRAINT SATISFACTION PROBLEMS
+
+Standard Search Problem:
+	state is a black box - any data structure that supports succesor function, heuristic function and goal test
+
+CSP:
+	state is defined by variables Xi with values from domain Di
+	goal test is a set of constraint specifying allowable combinations of values for subset of variables
+---
+Defs:
+
+	Assignment: values are given to some or all variables
+	Consistent assignment: assigned values do not violate any constraint
+	Complete assignment: every variable is assigned 
+	Solution to a CSP: a consistent and complete assignment
+	
+	Binary CSP: each constraint relates two variables
+	Constraint graph: nodes are variables arcs are constraints
+
+---
+Varieties of CSPs:
+	
+	Variables:	1. Discrete variables with finite domain(d->O(d^n)) or infinite domain(integer/string)
+			2. Continuous varables(linear programming)
+
+	Constraints: 	1. Unary constraints involve a single variable(e.g. SA!=green)
+			2. Binary constraints invlove pairs of variables(e.g. SA!=WA)
+			3. Higher-order(sometimes called global) constraints involve 3 or more variables
+
+----
+Backtracking search
+
+	DFS for CSPs with single variable assignments is called backtracking search
+
+
+function backtracking(csp) return a solution or failure
+	return recursive-backtracking({}, csp)
+
+function recursive-backtracking(assignment, csp)
+	if assiment is complete return assignment
+	var = select-unassigned-variable(assignment, csp)
+	for each value in order-domain-values(variable(csp), assignment, csp)
+		if value is consistent with assignment according to constraints(csp) then add var=value to assignment
+			result = recursive-backtracking(assignment, csp)
+			if result != failure return result
+			remove var=value from assignment
+
+	return failure
+
+----
+Improve backtracking:
+
+	1. Which variable should be assigned next?
+		most constraint/fewest legal values
+	2. In what order would its values be tried 
+		least constraining value
+----
+Forward tracking
+
+	Idea: keep track of the remaining legal values for unassigned varuables(inference step), terminate search when any variable has no legal values. i.e. after assignming one variable, says, Vi, check all constraints on Vi and update all the domains
+----
+
+A single variable is node-consistent if all the values in its domain satisfy the variable's UNARY constraints
+
+A variable is arc-consistent if every value in its domain satisfies the binary constraints
+
+A network is arc-consistent if every variable is arc consistent with every other variable
+
+----
+AC-3
+
+function AC-3(csp) returns the CSP, possibly wit reduced domains:
+	input:		csp, a binary csp with variables {X1, X2....}
+	local var:	queue, a queue of arcs initially all arcs in csp
+	while queue is not empty do 
+		(Xi, Xj)=remove-first(queue)
+		
+
+
+
+
+
+
+
+
+
