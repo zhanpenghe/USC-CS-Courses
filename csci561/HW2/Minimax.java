@@ -1,6 +1,5 @@
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 public class Minimax {
 
@@ -8,58 +7,72 @@ public class Minimax {
     private int types;  // # of types of fruits
     private float time;
 
-    private Stack<Node> stack;
+    private Node root;
 
     public Minimax(char[][] initialState, int size, int types, float time) {
-        this.stack = new Stack<>();
-        stack.push(new Node(1,2,initialState));
+        root = new Node(Integer.MIN_VALUE,Integer.MAX_VALUE,initialState);
         this.size = size;
         this.types = types;
         this.time = time;
         System.out.println(this);
     }
 
-    public void testExpand()
+    public void run()
     {
-        Node temp = stack.pop();
-        expand(temp);
+        maxValue(root);
     }
 
-    private void expand(Node node){
+    private int maxValue(Node node)
+    {
+        System.out.println("*********************MAX***********************");
+        if(node.isEmpty()) return node.getValue();
 
-        char[][] state = node.getState();
-        printMatirx(state);
         short i, j;
+        char[][] tMap = node.gettMap();
 
-        for(i = 0; i<size; i++)
-        {
-            for(j = 0; j<size; j++)
-            {
-                if(state[i][j]!='*' && state[i][j]!='T'){
-                    Node temp = crawl(state, i, j);
-                    System.out.println(temp);
-                    printMatirx(state);
-                    stack.push(temp);
+        for(i = 0; i<size; i++) {
+            for (j = 0; j < size; j++) {
+                if(tMap[i][j]!='*' && tMap[i][j]!='T'){
+                    System.out.println(node);
+                    node.printTMap();
+                    Node temp = crawl(node, i, j);
+                    node.setAlpha(Math.max(node.getAlpha(), minValue(temp)));
+                    if(node.prune()) return node.getBeta();
                 }
             }
         }
+        return node.getAlpha();
     }
 
-    private void printMatirx(char[][] arr)
-    {
-        System.out.println();
-        for(int i = 0; i<size; i++)
-        {
-            for(int j = 0; j<size; j++)
-            {
-                System.out.print(arr[i][j]);
+    private int minValue(Node node){
+        System.out.println("*********************MIN***********************");
+        if(node.isEmpty()) return node.getValue();
+
+        short i, j;
+        char[][] tMap = node.gettMap();
+
+        for(i = 0; i<size; i++) {
+            for (j = 0; j < size; j++) {
+                if(tMap[i][j]!='*' && tMap[i][j]!='T'){
+
+                    System.out.println(node);
+                    node.printTMap();
+                    Node temp = crawl(node, i, j);
+                    node.setBeta(Math.min(node.getBeta(), maxValue(temp)));
+                    if(node.prune()) return node.getAlpha();
+                }
             }
-            System.out.println();
         }
+        return node.getBeta();
     }
-    private Node crawl(char[][] state, short i, short j)
+
+    private Node crawl(Node node, short i, short j)
     {
         //copy the array
+        System.out.println("\nCrawling from ("+i+", "+j+")");
+        char[][] state = node.getState();
+        char[][] tMap = node.gettMap();
+
         char[][] result = new char[size][size];
         for (int m = 0; m<size; m++) result[m] = state[m].clone();
 
@@ -67,47 +80,53 @@ public class Minimax {
         queue.add(new Point(i, j));
 
         char target = state[i][j];
-        state[i][j] = 'T';
+        node.take(i, j);
         result[i][j] = '*';
+
+        int val = node.getValue()+1;
         Point temp;
         while(!queue.isEmpty())
         {
-            temp =  queue.remove(0);
+            temp = queue.remove(0);
             try{
                 if(temp.i-1 >= 0)
                 {
-                    if(state[temp.i-1][temp.j]==target)
+                    if(tMap[temp.i-1][temp.j]==target)
                     {
-                        state[temp.i-1][temp.j] = 'T';
+                        node.take((short)(temp.i-1), temp.j);
                         result[temp.i-1][temp.j] = '*';
                         queue.add(new Point((short)(temp.i-1), temp.j));
+                        val+=1;
                     }
                 }
                 if(temp.i+1 < size)
                 {
-                    if(state[temp.i+1][temp.j]==target)
+                    if(tMap[temp.i+1][temp.j]==target)
                     {
-                        state[temp.i+1][temp.j] = 'T';
+                        node.take((short)(temp.i+1), temp.j);
                         result[temp.i+1][temp.j] = '*';
                         queue.add(new Point((short)(temp.i+1), temp.j));
+                        val+=1;
                     }
                 }
                 if(temp.j-1 >= 0)
                 {
-                    if(state[temp.i][temp.j-1]==target)
+                    if(tMap[temp.i][temp.j-1]==target)
                     {
-                        state[temp.i][temp.j-1] = 'T';
+                        node.take(temp.i, (short)(temp.j-1));
                         result[temp.i][temp.j-1] = '*';
                         queue.add(new Point(temp.i, (short)(temp.j-1)));
+                        val+=1;
                     }
                 }
                 if(temp.j+1 < size)
                 {
-                    if(state[temp.i][temp.j+1]==target)
+                    if(tMap[temp.i][temp.j+1]==target)
                     {
-                        state[temp.i][temp.j+1] = 'T';
+                        node.take(temp.i, (short)(temp.j+1));
                         result[temp.i][temp.j+1] = '*';
                         queue.add(new Point(temp.i, (short)(temp.j+1)));
+                        val+=1;
                     }
                 }
 
@@ -118,25 +137,19 @@ public class Minimax {
             }
         }
 
-        Node resultNode = new Node(1,2,result);
-        resultNode.gravity();
+        Node resultNode = new Node(node.getAlpha(), node.getBeta(), result);
+
+        resultNode.setValue(val);
+
+        System.out.println("..\n"+resultNode);
+        resultNode.printTMap();
+
         return resultNode;
     }
 
     public String toString()
     {
         String result = "---\nSize: "+this.size+"*"+this.size+"\n# of types: "+this.types+"\nRemaining Time: "+this.time+"s\nBoard: \n";
-
-        /*for(int i = 0; i<initialState.length; i++)
-        {
-            for(int j = 0; j<initialState[i].length; j++)
-            {
-                result+=(this.initialState[i][j]+"\t");
-            }
-            result+="\n";
-        }*/
         return result;
     }
-
-
 }
