@@ -24,9 +24,12 @@ public class Main {
             }
 
             Minimax mm = new Minimax(initial, size, numOfTypes, time);
-            Node test = new Node(1,2,initial);
+            mm.testExpand();
+
+
+            /*Node test = new Node(1,2,initial);
             test.gravity();
-            System.out.println(test);
+            System.out.println(test);*/
         }catch(Exception e)
         {
             e.printStackTrace();

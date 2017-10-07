@@ -43,7 +43,7 @@ public class Node {
             n = state.length-1;
             for(i = state.length-1;i>=0;i--)
             {
-                if(state[i][j] != '*')
+                if(state[i][j] != '*' && state[i][j]!='T')
                 {
                     state[n][j] = state[i][j];
                     n-=1;
@@ -59,13 +59,10 @@ public class Node {
 
     public String toString()
     {
-        String result = "";
+        String result = "\n-----\n";
         for(int i = 0; i<state.length; i++)
         {
-            for(int j = 0; j<state.length;j++)
-            {
-                result+=(state[i][j]+"\t");
-            }
+            for(int j = 0; j<state.length;j++) result+=(state[i][j]+"\t");
             result+="\n";
         }
         return result;
