@@ -25,7 +25,7 @@ public class Minimax {
     private int maxValue(Node node)
     {
         System.out.println("*********************MAX***********************");
-        if(node.isEmpty()) return node.getValue();
+        if(node.isEmpty()) return node.getScore();
 
         short i, j;
         char[][] tMap = node.gettMap();
@@ -35,7 +35,7 @@ public class Minimax {
                 if(tMap[i][j]!='*' && tMap[i][j]!='T'){
                     System.out.println(node);
                     node.printTMap();
-                    Node temp = crawl(node, i, j);
+                    Node temp = crawl(node, i, j, true);
                     node.setAlpha(Math.max(node.getAlpha(), minValue(temp)));
                     if(node.prune()) return node.getBeta();
                 }
@@ -46,7 +46,7 @@ public class Minimax {
 
     private int minValue(Node node){
         System.out.println("*********************MIN***********************");
-        if(node.isEmpty()) return node.getValue();
+        if(node.isEmpty()) return node.getScore();
 
         short i, j;
         char[][] tMap = node.gettMap();
@@ -57,7 +57,7 @@ public class Minimax {
 
                     System.out.println(node);
                     node.printTMap();
-                    Node temp = crawl(node, i, j);
+                    Node temp = crawl(node, i, j, false);
                     node.setBeta(Math.min(node.getBeta(), maxValue(temp)));
                     if(node.prune()) return node.getAlpha();
                 }
@@ -66,8 +66,16 @@ public class Minimax {
         return node.getBeta();
     }
 
-    private Node crawl(Node node, short i, short j)
-    {
+
+    /**
+     *
+     * @param node  The current node
+     * @param i x coordinate
+     * @param j y coordinate
+     * @param isMyTurn  false if it's opponent's turn
+     * @return
+     */
+    private Node crawl(Node node, short i, short j, boolean isMyTurn) {
         //copy the array
         System.out.println("\nCrawling from ("+i+", "+j+")");
         char[][] state = node.getState();
@@ -83,7 +91,7 @@ public class Minimax {
         node.take(i, j);
         result[i][j] = '*';
 
-        int val = node.getValue()+1;
+        int val = 1;
         Point temp;
         while(!queue.isEmpty())
         {
@@ -139,7 +147,8 @@ public class Minimax {
 
         Node resultNode = new Node(node.getAlpha(), node.getBeta(), result);
 
-        resultNode.setValue(val);
+        if(isMyTurn) resultNode.setScore(val+node.getScore());
+        else resultNode.setOpponentScore(val+node.getOpponentScore());
 
         System.out.println("..\n"+resultNode);
         resultNode.printTMap();
@@ -147,8 +156,7 @@ public class Minimax {
         return resultNode;
     }
 
-    public String toString()
-    {
+    public String toString() {
         String result = "---\nSize: "+this.size+"*"+this.size+"\n# of types: "+this.types+"\nRemaining Time: "+this.time+"s\nBoard: \n";
         return result;
     }

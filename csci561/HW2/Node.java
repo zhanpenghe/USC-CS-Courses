@@ -2,7 +2,8 @@ public class Node {
 
     private int alpha;
     private int beta;
-    private int value;
+    private int score;
+    private int opponentScore;
     private char[][] state;
     private char[][] tMap;
 
@@ -13,7 +14,7 @@ public class Node {
         this.tMap = new char[state.length][state.length];
         this.gravity();
         for(int i=0; i<state.length; i++) this.tMap[i] = this.state[i].clone();
-        this.value = 0;
+        this.score = 0;
     }
 
     public char[][] gettMap() {
@@ -32,8 +33,12 @@ public class Node {
         return state;
     }
 
-    public int getValue() {
-        return value;
+    public int getScore() {
+        return score;
+    }
+
+    public int getOpponentScore() {
+        return opponentScore;
     }
 
     public void setAlpha(int alpha) {
@@ -44,8 +49,12 @@ public class Node {
         this.beta = beta;
     }
 
-    public void setValue(int value) {
-        this.value = value;
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public void setOpponentScore(int opponentScore) {
+        this.opponentScore = opponentScore;
     }
 
     public void gravity() {
@@ -89,7 +98,7 @@ public class Node {
     }
 
     public String toString() {
-        String result = "\n-------------\nalpha:\t"+alpha+"\nbeta:\t"+beta+"\nvalue:\t"+value+"\n\nBoard:\n";
+        String result = "\n-------------\nalpha:\t"+alpha+"\nbeta:\t"+beta+"\nscore:\t"+score+"\n\nBoard:\n";
 
         for(int i = 0; i<state.length; i++)
         {
