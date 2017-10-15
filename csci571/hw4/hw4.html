@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HW4</title>
+	<meta charset="utf-8"/>
+	<style type="text/css">
+
+		.centered{
+			margin: 0 auto;
+			width: 70%;
+			text-align: center;
+		}
+
+		#enter{
+			margin-top: 150px;
+			font-weight: bold;
+			font-size: 130%;
+		}
+
+		#inputbox{
+			margin-top: 10px;
+		}
+
+		input{
+			height: 25px;
+			width: 200px;
+			font-size: 90%;
+		}
+
+		button{
+			width: 110px;
+			height: 26px;
+			margin-top: 15px;
+			border-radius: 5px;
+			border: 1px solid;
+			border-color: grey;
+		}
+
+		table{
+			width: 100%;
+		}
+		table, th, td {
+			border: 1px solid black;
+		}
+
+		th{
+			text-align: center;
+		}
+		img{
+			width: 100%;
+		}
+	</style>
+	<script type="text/javascript">
+		var jsonData;
+		function loadURL() {
+
+			var url = document.getElementById("urll").value;
+			if(url == ""|| url ==null){
+				window.alert("Please input a url of the json file.");
+				return;
+			}
+			var data;
+
+			if (window.XMLHttpRequest){
+				xmlhttp=new XMLHttpRequest();
+			}else{
+				xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); 
+			}
+			xmlhttp.open("GET", url, false);
+			xmlhttp.onreadystatechange = function()
+			{
+				if(xmlhttp.status == 404 || xmlhttp.status ==403){
+					window.alert("[+"+xmlhttp.status+"] Failed to fetch the json/xml.");
+					return;
+				}else if(xmlhttp.status ==200){
+					try{
+						data = JSON.parse(xmlhttp.responseText);
+					}catch(e)
+					{
+						window.alert("INVALID JSON FORMAT!");
+						return;
+					}
+
+					//check if there is any row. If no, alert instead of open window
+					if(data["Mainline"]["Table"]["Row"] == null)
+					{
+						window.alert("No row in json file.");
+						return;
+					}else if(data["Mainline"]["Table"]["Row"].length ===0)
+					{
+						window.alert("No row/information in json file.");
+						return;
+					}
+
+					//open a new window for data display
+					var newWindow = window.open("hw4.html", "tableWindow", "width=1000,height=1000");
+					newWindow.jsonData = data;
+					newWindow.onload = function(){
+						newWindow.document.getElementById("inputview").style.display = "none";
+						var tableData = newWindow.jsonData["Mainline"]["Table"];
+
+						var table = newWindow.document.createElement("TABLE");
+						//header
+						var headerRow = table.createTHead();
+						var tableRow = headerRow.insertRow(0);
+						var header = tableData["Header"]["Data"];
+						for (var i = 0; i < header.length; i++) {
+							var cell = tableRow.insertCell(i);
+							cell.innerHTML = "<b>"+header[i]+"</b>";
+							cell.style.textAlign = "center";
+						}
+						var rows = tableData["Row"];
+						var col = 0;
+						for(var r = 0; r<rows.length; r++)
+						{
+							var row = rows[r];
+							tableRow = table.insertRow(r+1);
+							col = 0;
+							for(var head in row) {
+								var cell = tableRow.insertCell(col);
+								if(row[head] == ""){
+									col++;
+									continue;
+								}
+								if(col === 4)
+								{
+									cell.innerHTML = "<a href=\""+row[head]+"\">"+row[head]+"</a>";
+								}
+								else if(col === 5)
+								{
+									cell.innerHTML = "<img src=\""+row[head]+"\">";
+								}
+								else if(row[head].constructor == Object)
+								{
+									for(var key in row[head])
+									{
+										var listData = row[head][key];
+										var list = newWindow.document.createElement("UL");
+
+										for(var k = 0; k<listData.length; k++)
+										{
+											var li = newWindow.document.createElement("LI");
+											var text;
+
+											if(k == 0) text = listData[k].bold();
+											else text = listData[k];
+
+											li.innerHTML = text;
+											list.appendChild(li);
+										}
+										cell.appendChild(list);
+									}
+								}else{
+									cell.innerHTML = row[head];
+								}
+								col++;
+							}
+						}
+						newWindow.document.body.appendChild(table);
+					};
+				}else{
+					window.alert("Failed to fetch the json/xml.");
+					return;
+				}
+			}
+			try{
+				xmlhttp.send();
+			}catch(e)
+			{
+				window.alert("[404] Can't fetch the json/xml.");
+				return;
+			}
+		}
+	</script>
+</head>
+<body>
+	<div  class="centered" id="inputview">
+		<div class="centered" id="enter">Enter URL for Airlines List JSON File</div>
+		<div class="centered" id="inputbox"><input type="text" name="url" id="urll"></div>
+		<div class="centered" id="buttondiv"><button  onclick="loadURL()">Submit Query</button></div>
+	</div>
+</body>
+</html>
