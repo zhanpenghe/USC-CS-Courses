@@ -3,7 +3,6 @@ public class Node {
     private int alpha;
     private int beta;
     private int score;
-    private int opponentScore;
     private char[][] state;
     private char[][] tMap;
 
@@ -37,10 +36,6 @@ public class Node {
         return score;
     }
 
-    public int getOpponentScore() {
-        return opponentScore;
-    }
-
     public void setAlpha(int alpha) {
         this.alpha = alpha;
     }
@@ -51,10 +46,6 @@ public class Node {
 
     public void setScore(int score) {
         this.score = score;
-    }
-
-    public void setOpponentScore(int opponentScore) {
-        this.opponentScore = opponentScore;
     }
 
     public void gravity() {
@@ -117,4 +108,5 @@ public class Node {
     {
         this.tMap[i][j] = 'T';
     }
+
 }

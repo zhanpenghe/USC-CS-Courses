@@ -1,14 +1,26 @@
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class Main {
+
+    private static void writeToOutput(String s, String filePath)
+    {
+        try{
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false));
+            writer.append(s);
+            writer.close();
+        }catch(Exception e)
+        {
+            System.out.println("[ERROR] Failed to write output to the file("+filePath+").\n");
+        }
+    }
 
     public static void main(String[] args) {
 
         String inputFilePath = "input.txt";
 
         try{
+            long startTime = System.currentTimeMillis();
+
             FileInputStream fstream = new FileInputStream(inputFilePath);
             BufferedReader buffer = new BufferedReader(new InputStreamReader(fstream));
 
@@ -17,7 +29,6 @@ public class Main {
             float time = Float.parseFloat(buffer.readLine());
 
             char[][] initial = new char[size][size];
-
             String line;
             for(int i = 0; i<size; i++)
             {
@@ -28,7 +39,12 @@ public class Main {
             }
 
             Minimax mm = new Minimax(initial, size, numOfTypes, time);
-            mm.run();
+            mm.setStartTime(startTime);
+            String result = mm.run();
+            writeToOutput(result, "output.txt");
+            long endTime = System.currentTimeMillis();
+
+            System.out.println("StartTime:\t"+startTime+"\nEndTime:\t"+endTime+"\nUsed time:\t"+(endTime-startTime)+"ms");
         }catch(Exception e)
         {
             e.printStackTrace();
