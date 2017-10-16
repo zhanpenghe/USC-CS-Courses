@@ -1,4 +1,4 @@
-public class Node {
+public class Node implements Comparable<Node>{
 
     private int alpha;
     private int beta;
@@ -109,4 +109,10 @@ public class Node {
         this.tMap[i][j] = 'T';
     }
 
+    @Override
+    public int compareTo(Node o) {
+        if(this.score > o.getScore()) return 1;
+        else if(this.score < o.getScore()) return -1;
+        else return 0;
+    }
 }

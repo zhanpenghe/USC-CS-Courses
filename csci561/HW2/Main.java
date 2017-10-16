@@ -2,8 +2,7 @@ import java.io.*;
 
 public class Main {
 
-    private static void writeToOutput(String s, String filePath)
-    {
+    private static void writeToOutput(String s, String filePath) {
         try{
             BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false));
             writer.append(s);
@@ -24,9 +23,9 @@ public class Main {
             FileInputStream fstream = new FileInputStream(inputFilePath);
             BufferedReader buffer = new BufferedReader(new InputStreamReader(fstream));
 
-            int size = Integer.parseInt(buffer.readLine());
-            int numOfTypes = Integer.parseInt(buffer.readLine());
-            float time = Float.parseFloat(buffer.readLine());
+            int size = Integer.parseInt(buffer.readLine().trim());
+            int numOfTypes = Integer.parseInt(buffer.readLine().trim());
+            float time = Float.parseFloat(buffer.readLine().trim());
 
             char[][] initial = new char[size][size];
             String line;
@@ -34,6 +33,7 @@ public class Main {
             {
                 line = buffer.readLine();
                 for(int j = 0; j<size; j++) {
+                    //System.out.println(i+"..."+j);
                     initial[i][j] = line.charAt(j);
                 }
             }
@@ -44,7 +44,7 @@ public class Main {
             writeToOutput(result, "output.txt");
             long endTime = System.currentTimeMillis();
 
-            System.out.println("StartTime:\t"+startTime+"\nEndTime:\t"+endTime+"\nUsed time:\t"+(endTime-startTime)+"ms");
+            System.out.println("StartTime:\t"+startTime+"\nEndTime:\t"+endTime+"\nUsed time:\t"+(endTime-startTime)/1000.0+" s");
         }catch(Exception e)
         {
             e.printStackTrace();

@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Minimax {
 
@@ -9,6 +6,7 @@ public class Minimax {
     private int types;  // # of types of fruits
     private double time;
     private long startTime;
+    private int maxDepth = 4;
 
     private Node root;
 
@@ -17,7 +15,6 @@ public class Minimax {
         this.size = size;
         this.types = types;
         this.time = time*1000.0;
-        System.out.println(this);
     }
 
     public void setStartTime(long startTime) {
@@ -25,44 +22,44 @@ public class Minimax {
     }
 
     public String run() {
+
         if(root.isEmpty()) return null;
         if(noTime(1000)) return randomMove();
 
         short i, j;
         char[][] tMap = root.gettMap();
         Node optimalSolution = null;
-        short optimalI = -1;
-        short optimalJ = -1;
 
-        for(i = 0; i<size; i++)
-        {
-            for(j = 0; j<size; j++) {
+        List<Node> successors = new ArrayList<>();
+        Map<Node, Point> positions = new HashMap<>();
+        for(i = 0; i<size; i++) {
+            for (j = 0; j < size; j++) {
                 if (tMap[i][j] != '*' && tMap[i][j] != 'T') {
-                    System.out.println(root);
-                    root.printTMap();
                     Node temp = crawl(root, i, j, true);
-                    System.out.println(temp);
-                    temp.printTMap();
-                    root.setAlpha(Math.max(root.getAlpha(), minValue(temp, 1)));
-                    if (optimalSolution == null){
-                        optimalSolution = temp;
-                        optimalI = i;
-                        optimalJ = j;
-                    }
-                    else if (optimalSolution.getAlpha() < temp.getBeta()){
-                        optimalSolution = temp;
-                        optimalI = i;
-                        optimalJ = j;
-                    }
+                    successors.add(temp);
+                    positions.put(temp, new Point(i, j));
                 }
             }
         }
 
-        return translate(optimalSolution, optimalI, optimalJ);
+        Collections.sort(successors, Collections.reverseOrder());
+
+        for(Node successor: successors){
+            if(noTime(2000)){
+                if(optimalSolution == null) optimalSolution = successors.get(0);
+                return translate(optimalSolution, positions.get(optimalSolution).i, positions.get(optimalSolution).j);
+            }
+
+            root.setAlpha(Math.max(root.getAlpha(), minValue(successor, 1)));
+
+            if(optimalSolution == null) optimalSolution = successor;
+            else if(optimalSolution.getAlpha()<successor.getBeta()) optimalSolution = successor;
+        }
+
+        return translate(optimalSolution, positions.get(optimalSolution).i, positions.get(optimalSolution).j);
     }
 
-    private String translate(Node node, short i, short j)
-    {
+    private String translate(Node node, short i, short j) {
         if(i==-1||j==-1){
             System.out.println("[ERROR] Error when looking for optimal solution and return a dummy random move now.");
             return randomMove();
@@ -70,7 +67,7 @@ public class Minimax {
 
         StringBuilder sb = new StringBuilder();
         sb.append((char)('A'+j));
-        sb.append((j+1));
+        sb.append((i+1));
 
         char[][] state = node.getState();
         for(i = 0; i<size; i++)
@@ -81,11 +78,9 @@ public class Minimax {
             }
         }
         return sb.toString();
-
     }
 
-    private String randomMove()
-    {
+    private String randomMove() {
         char[][] state = root.getState();
         for(short i = 0; i<size; i++)
         {
@@ -99,53 +94,55 @@ public class Minimax {
             }
         }
         return null;
-
     }
 
     private int maxValue(Node node, int depth) {
-        System.out.println("*********************MAX***********************");
-        if(noTime(1000) || node.isEmpty() || depth>5) return eval(node);
+
+        if(noTime(4000) || node.isEmpty() || depth>this.maxDepth) return eval(node, true);
 
         short i, j;
         char[][] tMap = node.gettMap();
 
-        for(i = 0; i<size; i++) {
-            for (j = 0; j < size; j++) {
-                if(tMap[i][j]!='*' && tMap[i][j]!='T'){
-                    System.out.println(node);
-                    node.printTMap();
-                    Node temp = crawl(node, i, j, true);
-                    System.out.println(temp);
-                    temp.printTMap();
-                    node.setAlpha(Math.max(node.getAlpha(), minValue(temp, depth+1)));
-                    if(node.prune()) return node.getBeta();
-                }
+        List<Node> successors = new ArrayList<>();
+
+        for(i = 0; i<size; i++)
+        {
+            for(j = 0; j<size; j++){
+                if(tMap[i][j] != '*' && tMap[i][j] != 'T') successors.add(crawl(node, i, j, true));
             }
+        }
+
+        Collections.sort(successors, Collections.reverseOrder());
+
+        for(Node successor: successors){
+            //System.out.println("=====MAX====\nDepth: "+depth+"\n"+node+"\n-----\n"+successor+"\n");
+            node.setAlpha(Math.max(node.getAlpha(), minValue(successor, depth+1)));
+            if(successor.prune()) return node.getBeta();
         }
         return node.getAlpha();
     }
 
     private int minValue(Node node, int depth) {
-        System.out.println("*********************MIN***********************");
-        if(noTime(1000) || node.isEmpty() || depth>10) return eval(node);
+
+        if(noTime(3000) || node.isEmpty() || depth>this.maxDepth) return eval(node, false);
 
         short i, j;
         char[][] tMap = node.gettMap();
-
-        for(i = 0; i<size; i++) {
-            for (j = 0; j < size; j++) {
-                if(tMap[i][j]!='*' && tMap[i][j]!='T'){
-
-                    System.out.println(node);
-                    node.printTMap();
-                    Node temp = crawl(node, i, j, false);
-                    System.out.println(temp);
-                    temp.printTMap();
-                    node.setBeta(Math.min(node.getBeta(), maxValue(temp, depth+1)));
-                    if(node.prune()) return node.getAlpha();
-                }
+        List<Node> successors = new ArrayList<>();
+        for(i = 0; i<size; i++)
+        {
+            for(j = 0; j<size; j++){
+                if(tMap[i][j] != '*' && tMap[i][j] != 'T') successors.add(crawl(node, i, j, false));
             }
         }
+        Collections.sort(successors);
+
+        for(Node successor: successors){
+            //System.out.println("=====MIN====\nDepth: "+depth+"\n"+node+"\n---\n"+successor+"\n");
+            node.setBeta(Math.min(node.getBeta(), maxValue(successor, depth+1)));
+            if(node.prune()) return node.getAlpha();
+        }
+
         return node.getBeta();
     }
 
@@ -158,8 +155,7 @@ public class Minimax {
      * @return A successor node
      */
     private Node crawl(Node node, short i, short j, boolean isMyTurn) {
-        //copy the array
-        System.out.println("\nCrawling from ("+i+", "+j+")");
+
         char[][] state = node.getState();
         char[][] tMap = node.gettMap();
 
@@ -229,8 +225,8 @@ public class Minimax {
 
         Node resultNode = new Node(node.getAlpha(), node.getBeta(), result);
 
-        if(isMyTurn) resultNode.setScore(val+node.getScore());
-        else resultNode.setScore(node.getScore()-val);
+        if(isMyTurn) resultNode.setScore(node.getScore()+val*val);
+        else resultNode.setScore(node.getScore()-val*val);
         return resultNode;
     }
 
@@ -244,8 +240,7 @@ public class Minimax {
      * @param node current state node
      * @return expected score of current state
      */
-    private int eval(Node node)
-    {
+    private int eval(Node node, boolean isMyTurn) {
         if(node.isEmpty()) return node.getScore();
 
         char[][] tMap = node.gettMap();
@@ -273,7 +268,10 @@ public class Minimax {
                 }
             }
         }
-        int result = node.getScore()+greatest-secondGreatest;
+        int result;
+        if(isMyTurn) result = node.getScore()+greatest;
+        else result = node.getScore()-greatest;
+
         node.setAlpha(result);
         node.setBeta(result);
         return result;
@@ -286,6 +284,7 @@ public class Minimax {
         queue.add(new Point(i, j));
 
         int val = 1;
+        tempMap[i][j] = '*';
         Point temp;
         while(!queue.isEmpty())
         {
@@ -332,16 +331,10 @@ public class Minimax {
                 continue;
             }
         }
-        return val;
+        return val*val;
     }
 
-    private boolean noTime(double offset)
-    {
-        if(offset == 3)
-        {
-            System.out.println(time);
-        }
-        //System.out.println(System.currentTimeMillis());
+    private boolean noTime(double offset) {
         return (double)(System.currentTimeMillis() - startTime) > (time-offset);
     }
 }
