@@ -18,7 +18,7 @@ public class Main {
         String inputFilePath = "input.txt";
 
         try{
-            long startTime = System.currentTimeMillis();
+            long startTime = Minimax.getTime();
 
             FileInputStream fstream = new FileInputStream(inputFilePath);
             BufferedReader buffer = new BufferedReader(new InputStreamReader(fstream));
@@ -42,9 +42,9 @@ public class Main {
             mm.setStartTime(startTime);
             String result = mm.run();
             writeToOutput(result, "output.txt");
-            long endTime = System.currentTimeMillis();
+            long endTime = Minimax.getTime();
 
-            System.out.println("StartTime:\t"+startTime+"\nEndTime:\t"+endTime+"\nUsed time:\t"+(endTime-startTime)/1000.0+" s");
+            System.out.println("StartTime:\t"+startTime+"\nEndTime:\t"+endTime+"\nUsed time:\t"+(endTime-startTime)/1000000.0+" ms");
         }catch(Exception e)
         {
             e.printStackTrace();
