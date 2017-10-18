@@ -17,9 +17,21 @@ public class Minimax {
         this.size = size;
         this.types = types;
         this.time = time*1e9;
-        this.maxDepth = 0;
+        this.maxDepth = 1;
         if(this.size<=8 && this.time>2e9) this.maxDepth=5;
-        //System.out.println(this.maxDepth);
+        setMaxDepth();
+        //System.out.println("Depth: "+this.maxDepth);
+    }
+
+    private void setMaxDepth()
+    {
+        if(this.size>=20) this.maxDepth = 0;
+        else if(this.size>=11) this.maxDepth = 1;
+        else if(this.size<=3 && this.time>= 3e9) this.maxDepth = 10;
+        else if(this.size<=5 && this.time<=1.2e10) this.maxDepth = 2;
+        else if(this.size<=5 && this.time<=6e10) this.maxDepth =3;
+        else if(this.size<=5) this.maxDepth = 4;
+        else this.maxDepth = 1;
     }
 
     public void setStartTime(long startTime) {
@@ -29,7 +41,7 @@ public class Minimax {
     public String run() {
 
         if(root.isEmpty()) return null;
-        if(noTime(1e9)) return randomMove();
+        if(noTime(9e8)&&this.size>3) return randomMove();
 
         short i, j;
 
@@ -50,6 +62,12 @@ public class Minimax {
         }
 
         Collections.sort(successors, Collections.reverseOrder());
+        if(successors.size()>=25 && this.time<2e11 && this.size<=20) this.maxDepth = 1;
+        if(successors.size()<=45 && this.time>=7e10 && this.size<=10) this.maxDepth = 2;
+
+        if(successors.size()>=185 && this.time>7e10 && this.size<=20) this.maxDepth = 1;
+        else if(successors.size()>=185) this.maxDepth = 0;
+        System.out.println(this.maxDepth+"..."+successors.size());
 
         for(Node successor: successors){
             if(noTime(2e9)){
@@ -64,7 +82,7 @@ public class Minimax {
 
         }
 
-        System.out.println(optimalSolution);
+        //System.out.println(optimalSolution);
 
         return translate(optimalSolution, positions.get(optimalSolution).i, positions.get(optimalSolution).j);
     }
@@ -110,9 +128,11 @@ public class Minimax {
             node.setBeta(node.getScore());
             return node.getScore();
         }
-        if(noTime(3e9) || depth>this.maxDepth){
-            long st = getTime();
-            int temp =  eval2(node, true, 10);
+        if(noTime(1e9) || depth>this.maxDepth){
+            //System.out.println("max");
+
+            //long st = getTime();
+            int temp =  eval2(node, true, 0);
             //System.out.println((getTime()-st)/1000000+"ms");
             return temp;
         }
@@ -135,7 +155,7 @@ public class Minimax {
         for(Node successor: successors){
             //System.out.println("=====MAX====\nDepth: "+depth+"\n"+node+"\n-----\n"+successor+"\n");
             node.setAlpha(Math.max(node.getAlpha(), minValue(successor, depth+1)));
-            if(noTime(2e9)) break;
+            //if(noTime(2e9)) break;
             //System.out.println(node.getAlpha()+">="+node.getBeta()+": "+(node.getAlpha()>=node.getBeta()));
             if(node.prune()) return node.getBeta();
         }
@@ -143,15 +163,16 @@ public class Minimax {
     }
 
     private int minValue(Node node, int depth) {
-
+        //System.out.println(depth+".."+maxDepth);
         if(node.isEmpty()){
             node.setAlpha(node.getScore());
             node.setBeta(node.getScore());
             return node.getScore();
         }
-        if(noTime(3e10)  || depth>this.maxDepth){
-            long st = getTime();
-            int temp =  eval2(node, false, 10);
+        if(noTime(1e9)  || depth>this.maxDepth){
+            //System.out.println("min");
+            //long st = getTime();
+            int temp =  eval2(node, false, 0);
             //System.out.println((getTime()-st)/1000000+"ms");
             return temp;
         }
@@ -173,7 +194,8 @@ public class Minimax {
 
         for(Node successor: successors){
             node.setBeta(Math.min(node.getBeta(), maxValue(successor, depth+1)));
-            if(noTime(2e9)) break;
+            //System.out.println("=====MIN====\nDepth: "+depth+"\n"+node+"\n-----\n"+successor+"\n");
+            //if(noTime(2e9)) break;
             if(node.prune()) return node.getAlpha();
         }
         return node.getBeta();
@@ -334,7 +356,8 @@ public class Minimax {
     }
 
     private int eval2(Node node, boolean isMyTurn, int depth) {
-        if(depth <= 0) return node.getScore();
+        if(depth >= 6) return node.getScore();
+
         short i, j;
 
         List<Node> list = new LinkedList<>();
@@ -343,8 +366,7 @@ public class Minimax {
 
         for(i = 0; i<size; i++)
         {
-            for(j = 0; j<size; j++)
-            {
+            for(j = 0; j<size; j++){
                 if(tMap[i][j]!='*' && tMap[i][j]!='T') list.add(crawl(node, tMap, i, j, isMyTurn));
             }
         }
@@ -363,10 +385,12 @@ public class Minimax {
                 if(s.getScore() < opt.getScore()) opt = s;
             }
         }
-        int result = eval2(opt, !isMyTurn, depth-1);
+
+        opt.setScore((int)((opt.getScore()-node.getScore())*Math.pow(0.9, depth))+ node.getScore());
+        int result = eval2(opt, !isMyTurn, depth+1);
         node.setBeta(result);
         node.setAlpha(result);
-        //System.out.println(node);
+
         return result;
     }
 }
