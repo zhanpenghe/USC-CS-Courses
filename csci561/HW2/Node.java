@@ -1,24 +1,17 @@
-public class Node {
+public class Node implements Comparable<Node>{
 
     private int alpha;
     private int beta;
     private int score;
-    private int opponentScore;
     private char[][] state;
-    private char[][] tMap;
+   // private char[][] tMap;
 
     public Node(int alpha, int beta, char[][] state) {
         this.alpha = alpha;
         this.beta = beta;
         this.state = state;
-        this.tMap = new char[state.length][state.length];
         this.gravity();
-        for(int i=0; i<state.length; i++) this.tMap[i] = this.state[i].clone();
         this.score = 0;
-    }
-
-    public char[][] gettMap() {
-        return tMap;
     }
 
     public int getAlpha() {
@@ -37,10 +30,6 @@ public class Node {
         return score;
     }
 
-    public int getOpponentScore() {
-        return opponentScore;
-    }
-
     public void setAlpha(int alpha) {
         this.alpha = alpha;
     }
@@ -51,10 +40,6 @@ public class Node {
 
     public void setScore(int score) {
         this.score = score;
-    }
-
-    public void setOpponentScore(int opponentScore) {
-        this.opponentScore = opponentScore;
     }
 
     public void gravity() {
@@ -89,14 +74,6 @@ public class Node {
         return true;
     }
 
-    public void printTMap() {
-        for(int i = 0; i<state.length; i++)
-        {
-            for(int j = 0; j<state.length;j++) System.out.print(tMap[i][j]+"\t");
-            System.out.println();
-        }
-    }
-
     public String toString() {
         String result = "\n-------------\nalpha:\t"+alpha+"\nbeta:\t"+beta+"\nscore:\t"+score+"\n\nBoard:\n";
 
@@ -113,8 +90,10 @@ public class Node {
         return (this.alpha>=this.beta);
     }
 
-    public void take(short i, short j)
-    {
-        this.tMap[i][j] = 'T';
+    @Override
+    public int compareTo(Node o) {
+        if(this.score > o.getScore()) return 1;
+        else if(this.score < o.getScore()) return -1;
+        else return 0;
     }
 }
