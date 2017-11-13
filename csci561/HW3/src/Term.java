@@ -35,4 +35,8 @@ public class Term {
     public Boolean equals(Term term){
         return (this.valueType==term.valueType && this.value.equals(term.getValue()) && this.type==term.type);
     }
+
+    public String toString(){
+        return this.value;
+    }
 }

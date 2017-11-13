@@ -24,6 +24,18 @@ public class Main {
             for(int i = 0; i<numOfKnowledge; i++) KB.addSentence(new Sentence(buffer.readLine().trim()));
 
             System.out.println(KB);
+
+            //testing for unification
+            AtomSentence atom1 = new AtomSentence("~A(Adam,Adam,k)");
+            AtomSentence atom2 = new AtomSentence("A(c, k, Adam2)");
+
+            List<List<Term>> unification = new ArrayList<>();
+
+            AtomSentence.unify(atom1, atom2, unification);
+            /*for(List<Term> terms: unification){
+                System.out.print(terms.get(0)+"/"+terms.get(1)+",");
+            }
+            */
         }catch (Exception e){
             e.printStackTrace();
         }

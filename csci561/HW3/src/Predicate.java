@@ -19,8 +19,12 @@ public class Predicate {
         return name;
     }
 
-    public List getArguments() {
+    public List getArguments(){
         return arguments;
+    }
+
+    public Term getArgument(int i) {
+        return arguments.get(i);
     }
 
     public Integer getNumOfArgs() {

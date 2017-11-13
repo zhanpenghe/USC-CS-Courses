@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Sentence {
 
@@ -11,6 +12,15 @@ public class Sentence {
         for(int i = 0; i < atoms.length; i++){
             String atom = atoms[i].trim();
             atomSentences.add(new AtomSentence(atom));
+        }
+    }
+
+    public Sentence(Sentence anotherSentence, AtomSentence toBeRemoved, List<List<Term>> unification){
+        this.atomSentences = new ArrayList<>();
+        for(AtomSentence atom: anotherSentence.getAtomSentences()){
+            if(atom.equals(toBeRemoved)) continue;
+            AtomSentence temp = Sentence.applyUnification(unification, atom);
+            if(temp != null) this.atomSentences.add(temp);
         }
     }
 
@@ -35,5 +45,24 @@ public class Sentence {
         }
 
         return sb.toString();
+    }
+
+    private static AtomSentence applyUnification(List<List<Term>> unification, AtomSentence sentence){
+        //todo
+        return null;
+    }
+
+    public static List<Sentence> applyResolution(AtomSentence atom, Sentence sentence){
+
+        List<Sentence> result = new ArrayList<>();
+
+        for(AtomSentence a: sentence.getAtomSentences()){
+            List<List<Term>> unification = new ArrayList<>();
+            if(a.getNegate()==!atom.getNegate() && AtomSentence.unify(atom,a, unification)){
+                result.add(new Sentence(sentence, a, unification));
+            }
+        }
+
+        return result;
     }
 }
