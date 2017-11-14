@@ -10,7 +10,7 @@ public class Main {
         String inputFilePath = "input.txt";
 
         int numOfQuery, numOfKnowledge = 0;
-        List<Sentence> queries = new ArrayList<>();
+        List<AtomSentence> queries = new ArrayList<>();
         KnowledgeBase KB = new KnowledgeBase();
 
         try{
@@ -18,24 +18,24 @@ public class Main {
             BufferedReader buffer = new BufferedReader(new InputStreamReader(fstream));
 
             numOfQuery = Integer.parseInt(buffer.readLine());
-            for(int i = 0; i<numOfQuery; i++) queries.add(new Sentence(buffer.readLine().trim()));
+            for(int i = 0; i<numOfQuery; i++) queries.add(new AtomSentence(buffer.readLine().trim()));
 
             numOfKnowledge = Integer.parseInt(buffer.readLine());
             for(int i = 0; i<numOfKnowledge; i++) KB.addSentence(new Sentence(buffer.readLine().trim()));
 
             System.out.println(KB);
 
-            //testing for unification
-            AtomSentence atom1 = new AtomSentence("~A(Adam,Adam,k)");
-            AtomSentence atom2 = new AtomSentence("A(c, k, Adam2)");
-
-            List<List<Term>> unification = new ArrayList<>();
-
-            AtomSentence.unify(atom1, atom2, unification);
-            /*for(List<Term> terms: unification){
-                System.out.print(terms.get(0)+"/"+terms.get(1)+",");
-            }
+            //testing for resolution
+            /*Sentence sentence1 = new Sentence("A(c, a, k) | B(a, k)");
+            Sentence sentence2 = new Sentence("~A(a,c,Mandy)|C(b, Adam)");
+            System.out.println(Sentence.applyResolution(sentence1, sentence2));
             */
+            //System.out.println(KB.query(queries.get(0)));
+
+            boolean[] results = new boolean[queries.size()];
+            for(int i = 0; i<results.length; i++) results[i] = KB.query(queries.get(i));
+            for(int i = 0; i<results.length; i++) System.out.println(results[i]);
+
         }catch (Exception e){
             e.printStackTrace();
         }

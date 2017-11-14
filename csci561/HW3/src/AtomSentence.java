@@ -31,6 +31,11 @@ public class AtomSentence {
         this.predicate = new Predicate(name, terms.size(), terms);
     }
 
+    public AtomSentence(Predicate predicate, Boolean negate) {
+        this.predicate = predicate;
+        this.negate = negate;
+    }
+
     public Predicate getPredicate() {
         return predicate;
     }
@@ -39,7 +44,8 @@ public class AtomSentence {
         return negate;
     }
 
-    public Boolean equals(AtomSentence atom){
+    public boolean equals(Object obj){
+        AtomSentence atom = (AtomSentence)obj;
         return (atom.getPredicate().equals(this.predicate) && this.negate == atom.negate);
     }
 
@@ -48,7 +54,7 @@ public class AtomSentence {
         else return predicate.toString();
     }
 
-    private static List<Term> searchUnification(List<List<Term>> unification, Term term){
+    public static List<Term> searchUnification(List<List<Term>> unification, Term term){
         for(List<Term> uni: unification){
             try{
                 if(uni.get(0).equals(term)) return uni;
@@ -75,19 +81,19 @@ public class AtomSentence {
     public static Boolean unify(AtomSentence sentence1, AtomSentence sentence2, List unification){
         //check predicate type
         if(!sentence1.getPredicate().getName().equals(sentence2.getPredicate().getName()) || sentence1.getPredicate().getNumOfArgs()!=sentence2.getPredicate().getNumOfArgs()){
-            printUnification(unification, false, sentence1, sentence2, "Different predicate names.");
+            //printUnification(unification, false, sentence1, sentence2, "Different predicate names.");
             return false;
         }
 
         //unify arguments
         for(int i = 0; i<sentence1.getPredicate().getNumOfArgs(); i++){
             if(!unify(sentence1.getPredicate().getArgument(i), sentence2.getPredicate().getArgument(i), unification)){
-                printUnification(unification, false, sentence1, sentence2, "Failed on unifying arguments:"+sentence1.getPredicate().getArgument(i)+" and "+sentence2.getPredicate().getArgument(i));
+                //printUnification(unification, false, sentence1, sentence2, "Failed on unifying arguments:"+sentence1.getPredicate().getArgument(i)+" and "+sentence2.getPredicate().getArgument(i));
                 return false;
             }
         }
 
-        printUnification(unification, true, sentence1, sentence2, null);
+        //printUnification(unification, true, sentence1, sentence2, null);
         return true;
     }
 

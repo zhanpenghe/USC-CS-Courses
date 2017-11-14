@@ -20,6 +20,12 @@ public class Term {
         this.valueType = valueType;
     }
 
+    public Term(Term anotherTerm){
+        this.type = anotherTerm.getType();
+        this.value = anotherTerm.getValue();
+        this.valueType = anotherTerm.getValueType();
+    }
+
     public Integer getType() {
         return type;
     }
@@ -30,6 +36,10 @@ public class Term {
 
     public String getValue() {
         return value;
+    }
+
+    public void setValue(String value){
+        this.value = value;
     }
 
     public Boolean equals(Term term){

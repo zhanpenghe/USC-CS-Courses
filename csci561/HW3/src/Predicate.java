@@ -19,7 +19,7 @@ public class Predicate {
         return name;
     }
 
-    public List getArguments(){
+    public List<Term> getArguments(){
         return arguments;
     }
 
@@ -33,8 +33,8 @@ public class Predicate {
 
     public Boolean equals(Predicate pred){
         if(!this.name.equals(pred.getName()) || this.numOfArgs!=pred.getNumOfArgs()) return false;
-        for(Term term:this.arguments){
-            if(!pred.getArguments().contains(term)) return false;
+        for(int i = 0; i<this.arguments.size(); i++){
+            if(!pred.getArgument(i).equals(this.getArgument(i))) return false;
         }
         return true;
     }
