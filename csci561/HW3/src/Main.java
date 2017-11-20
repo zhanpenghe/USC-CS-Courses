@@ -1,10 +1,20 @@
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
+
+    private static void writeToOutput(String s)
+    {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("./output.txt", false));
+            writer.append(s);
+            writer.close();
+        }catch(Exception e)
+        {
+            System.out.println("FAILED TO WRITE OUTPUT FILE.");
+        }
+    }
 
     public static void main(String[] args){
         String inputFilePath = "input.txt";
@@ -26,18 +36,29 @@ public class Main {
             System.out.println(KB);
 
             //testing for resolution
-            /*Sentence sentence1 = new Sentence("A(c, a, k) | B(a, k)");
-            Sentence sentence2 = new Sentence("~A(a,c,Mandy)|C(b, Adam)");
-            System.out.println(Sentence.applyResolution(sentence1, sentence2));
-            */
-            //System.out.println(KB.query(queries.get(0)));
+            //Sentence sentence1 = new Sentence("~Parent(Liz, x0) | ~Ancestor(x0, Billy)");
+            //Sentence sentence2 = new Sentence(" ~Parent(x0, x1) | ~Ancestor(x1, x2) | Ancestor(x0, x2)");
+            //System.out.println(Sentence.applyResolution(sentence1, sentence2));
+
+            //System.out.println(KB.query3(queries.get(0)));
 
             boolean[] results = new boolean[queries.size()];
-            for(int i = 0; i<results.length; i++) results[i] = KB.query(queries.get(i));
-            for(int i = 0; i<results.length; i++) System.out.println(results[i]);
+            for(int i = 0; i<results.length; i++){
+                //System.out.println("============Query "+i+"============");
+                results[i] = KB.query3(queries.get(i));
+            }
+
+            StringBuilder result = new StringBuilder();
+            for(int i = 0; i<results.length; i++){
+                result.append(results[i]?"TRUE":"FALSE");
+                if(i<results.length-1) result.append("\n");
+            }
+
+            writeToOutput(result.toString());
 
         }catch (Exception e){
             e.printStackTrace();
         }
     }
+
 }

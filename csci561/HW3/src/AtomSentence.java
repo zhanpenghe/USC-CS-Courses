@@ -1,12 +1,12 @@
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AtomSentence {
 
     private Predicate predicate;
-    private Boolean negate;  //1 is negate otherwise it's not negated
+    private boolean negate;  //1 is negate otherwise it's not negated
 
     public AtomSentence(String str){
 
@@ -24,8 +24,8 @@ public class AtomSentence {
 
         for(int i =0; i<args.length; i++){
             String arg = args[i].trim();
-            if(arg.charAt(0)<='Z' && arg.charAt(0)>='A') terms.add(new Term(Term.CONSTANT, arg, Term.STRING_VAR));
-            else terms.add(new Term(Term.VARIABLE, arg, Term.STRING_VAR));
+            if(arg.charAt(0)<='Z' && arg.charAt(0)>='A') terms.add(new Term(Term.CONSTANT, arg));
+            else terms.add(new Term(Term.VARIABLE, arg));
         }
 
         this.predicate = new Predicate(name, terms.size(), terms);
@@ -66,19 +66,19 @@ public class AtomSentence {
         return null;
     }
 
-    private static void printUnification(List<List> unification, boolean successful, AtomSentence sentence1, AtomSentence sentence2, String errorMsg){
+    private static void printUnification(List<List<Term>> unification, boolean successful, AtomSentence sentence1, AtomSentence sentence2, String errorMsg){
         System.out.println("Unification of "+sentence1+" and "+sentence2+": "+(successful?"Succeeded!":"Failed!"));
         if(!successful) System.out.println(errorMsg);
         System.out.print("{");
         for(int i=0; i<unification.size();i++){
-            List terms = unification.get(i);
+            List<Term> terms = unification.get(i);
             System.out.print(terms.get(0)+"/"+terms.get(1));
             if(i<unification.size()-1) System.out.print(", ");
         }
         System.out.println("}");
     }
 
-    public static Boolean unify(AtomSentence sentence1, AtomSentence sentence2, List unification){
+    public static Boolean unify(AtomSentence sentence1, AtomSentence sentence2, List<List<Term>> unification){
         //check predicate type
         if(!sentence1.getPredicate().getName().equals(sentence2.getPredicate().getName()) || sentence1.getPredicate().getNumOfArgs()!=sentence2.getPredicate().getNumOfArgs()){
             //printUnification(unification, false, sentence1, sentence2, "Different predicate names.");
@@ -92,17 +92,17 @@ public class AtomSentence {
                 return false;
             }
         }
-
         //printUnification(unification, true, sentence1, sentence2, null);
         return true;
     }
 
-    private static Boolean unify(Term term1, Term term2, List unification){
+    private static Boolean unify(Term term1, Term term2, List<List<Term>> unification){
         if(term1.equals(term2)) return true;
         if(term1.getType()==Term.CONSTANT && term2.getType()==Term.CONSTANT) return false;
+        //if(term1.getType()==Term.VARIABLE && term2.getType()==Term.VARIABLE) return false;
         if(term1.getType()==Term.VARIABLE){
-            if(searchUnification(unification, term1)!=null) return unify((Term)searchUnification(unification, term1).get(1), term2, unification);
-            if(searchUnification(unification, term2)!=null) return unify(term1, (Term)searchUnification(unification, term2).get(1), unification);
+            if(searchUnification(unification, term1)!=null) return unify(searchUnification(unification, term1).get(1), term2, unification);
+            if(searchUnification(unification, term2)!=null) return unify(term1, searchUnification(unification, term2).get(1), unification);
             else{
                 List<Term> temp = new ArrayList<>();
                 temp.add(term1);
@@ -111,8 +111,8 @@ public class AtomSentence {
                 return true;
             }
         }else if(term2.getType()==Term.VARIABLE){
-            if(searchUnification(unification, term2)!=null) return unify((Term)searchUnification(unification, term2).get(1), term1, unification);
-            if(searchUnification(unification, term1)!=null) return unify(term2, (Term)searchUnification(unification, term1).get(1), unification);
+            if(searchUnification(unification, term2)!=null) return unify(searchUnification(unification, term2).get(1), term1, unification);
+            if(searchUnification(unification, term1)!=null) return unify(term2, searchUnification(unification, term1).get(1), unification);
             else{
                 List<Term> temp = new ArrayList<>();
                 temp.add(term2);
@@ -123,4 +123,6 @@ public class AtomSentence {
         }
         return false;
     }
+
+    public AtomSentence clone(){return new AtomSentence(this.predicate.clone(), this.negate);}
 }

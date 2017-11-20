@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Predicate {
@@ -45,10 +46,18 @@ public class Predicate {
         sb.append("(");
         for(int i = 0; i<this.numOfArgs; i++){
             sb.append(arguments.get(i).getValue());
-            sb.append(arguments.get(i).getType()==Term.CONSTANT?": CONSTANT":": VARIABLE");
+            //sb.append(arguments.get(i).getType()==Term.CONSTANT?": CONSTANT":": VARIABLE");
             if(i<this.numOfArgs-1) sb.append(", ");
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    public Predicate clone(){
+        List<Term> newList = new ArrayList<>();
+        for(Term term: arguments){
+            newList.add(term.clone());
+        }
+        return new Predicate(new String(name), newList.size(), newList);
     }
 }
