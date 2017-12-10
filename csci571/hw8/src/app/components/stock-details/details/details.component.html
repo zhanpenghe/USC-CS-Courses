@@ -1,0 +1,38 @@
+<table class="table table-striped">
+	<tr>
+		<td><b>Stock Ticker Symbol</b></td>
+		<td>{{ table.symbol }}</td>
+	</tr>
+	<tr>
+		<td><b>Last Price</b></td>
+		<td>{{ table.lastDayClose| number:'1.2-2' }}</td>
+	</tr>
+	<tr>
+		<td><b>Change (Change Percent)</b></td>
+		<td [ngClass]="{'red':(table.change<0), 'green':(table.change>0)}">
+			{{ table.change| number:'1.2-2' }} ({{table.changePercent| number:'1.2-2'}}%)
+			<img src="http://cs-server.usc.edu:45678/hw/hw8/images/Up.png" *ngIf="(table.change>0)">
+			<img src="http://cs-server.usc.edu:45678/hw/hw8/images/Down.png" *ngIf="(table.change<0)">
+		</td>
+	</tr>
+	<tr>
+		<td><b>Timestamp</b></td>
+		<td>{{ table.lastDay }}</td>
+	</tr>
+	<tr>
+		<td><b>Open</b></td>
+		<td>{{ table.lastDayOpen| number:'1.2-2' }}</td>
+	</tr>
+	<tr>
+		<td><b>Previous Close</b></td>
+		<td>{{ table.prevClose| number:'1.2-2' }}</td>
+	</tr>
+	<tr>
+		<td><b>Day's Range</b></td>
+		<td>{{table.lo|number:'1.2-2'}}&nbsp;-&nbsp;{{ table.hi|number:'1.2-2'}}</td>
+	</tr>
+	<tr>
+		<td><b>Volume</b></td>
+		<td>{{ table.lastDayVol| number:'1.0-2' }}</td>
+	</tr>
+</table>

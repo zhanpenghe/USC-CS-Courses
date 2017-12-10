@@ -1,0 +1,61 @@
+<div id="fav-container" (window:resize)="onResize($event)">
+	<div class="panel panel-default">
+		<div class="panel-heading row">
+			<div class="align-bottom align-left favl"><b>Favorite List</b></div>
+			<div class="fav-well align-right">
+				{{ renderToggle() }}
+				<span *ngIf="isW()"><b>Automatic Refresh:&nbsp;</b></span><input type="checkbox"  data-toggle="toggle" id="toggle">		 
+				<button type="button" class="btn btn-default" (click)="get_all_metas()"><span class="glyphicon glyphicon-refresh"></span></button>
+				<button type="button" class="btn btn-default" [disabled]="isFirst" (click)="switchToDetails()"><span class="glyphicon glyphicon-chevron-right"></span></button>
+			</div>
+		</div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-lg-2 col-sm-2" style="margin-top: 5px;"><b>Sort by</b></div>
+				<div class="col-lg-3 col-sm-3">
+					<select class="form-control" (change)="updateOrder($event)" style="margin-bottom: 5px;">
+						<option [selected]="orderOpt=='Default'">Default</option>
+						<option [selected]="orderOpt=='Symbol'">Symbol</option>
+						<option [selected]="orderOpt=='Stock Price'">Stock Price</option>
+						<option [selected]="orderOpt=='Change'">Change</option>
+						<option [selected]="orderOpt=='ChangePercent'">Change Percent</option>
+						<option [selected]="orderOpt=='Volume'">Volume</option>
+					</select>
+				</div>  					
+				<div class="col-lg-1 col-sm-2"  style="margin-top: 5px;"><b>Order</b></div>
+				<div class="col-lg-3 col-sm-3" style="margin-bottom: 5px;">
+					<select class="form-control" (change)="updateOrder($event)">>
+						<option [selected]="order=='Ascending'">Ascending</option>
+						<option [selected]="order=='Descending'">Descending</option>
+					</select>
+				</div>
+				<div class="col-sm-4"></div>
+			</div>
+			<div class="scrollable">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th style="min-width: 70px;">Symbol</th>
+							<th style="min-width: 100px;">Stock Price</th>
+							<th style="min-width: 190px;">Change (Change Percent)</th>
+							<th style="min-width: 70px;">Volume</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let Symbol of favListDisplay;let i=index" >
+							<td><a (click)="getDetails(i)">{{ Symbol.symbol }}</a></td>
+							<td>{{ Symbol.lastDayClose | number:'1.2-2'}}</td>
+							<td [ngClass]="{'red':(Symbol.change<0), 'green':(Symbol.change>0)}">{{ Symbol.change | number:'1.2-2'}} ({{Symbol.changePercent| number:'1.2-2'}}%)
+								<img src="http://cs-server.usc.edu:45678/hw/hw8/images/Up.png" *ngIf="(Symbol.change>0)">
+								<img src="http://cs-server.usc.edu:45678/hw/hw8/images/Down.png" *ngIf="(Symbol.change<0)">
+							</td>
+							<td>{{ Symbol.lastDayVol | number:'1.0-2'}}</td>
+							<td><button type="button" class="btn btn-default" (click)="delete(i)"><span class="glyphicon glyphicon-trash
+"></span></button></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

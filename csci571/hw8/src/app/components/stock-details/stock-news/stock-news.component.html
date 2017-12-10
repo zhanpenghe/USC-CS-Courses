@@ -1,0 +1,7 @@
+<div *ngIf="(newsData!=null)">
+	<div *ngFor="let eachNews of newsData" class="jumbotron">
+		<div style="margin-bottom: 35px; font-size: 120%;"><a href="{{ eachNews.link }}" target="_blank" >{{ eachNews.title }}</a></div>
+		<div style="margin-bottom: 10px;"><b>Author: {{ eachNews.author }}</b></div>
+		<div><b>Date: {{ eachNews.pubDate }}</b></div>	
+	</div>
+</div>

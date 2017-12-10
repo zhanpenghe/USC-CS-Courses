@@ -1,0 +1,38 @@
+.panel-heading{
+    margin-right: 0px;
+    margin-left: 0px;
+}
+.scrollable{
+    overflow-x: auto;
+}
+.align-left{
+	float: left;
+}
+.align-right{
+	float: right;
+}
+img{
+	height: 10px;
+	width:10px;
+}
+
+.red{
+	color: red;
+}
+
+.green{
+	color: green;
+}
+
+a:hover{
+	cursor: pointer;
+}
+
+.row{
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+.favl{
+	padding-top: 6px;
+}

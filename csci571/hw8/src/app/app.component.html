@@ -1,0 +1,37 @@
+<div class="row">
+	<div class="col-lg-2 col-md-1 col-sm-1 col-xs-1"></div>
+	<div class="container center_div col-lg-8 col-md-10 col-sm-10 col-xs-10" id="search_form">
+		<div class="text-center" id="title" style="font-size: 120%;"><b>Stock Market Search</b></div>
+		<form novalidate [formGroup]="rForm" (ngSubmit)="submit_form(rForm.value)" class="form-horizontal" id="submit_form">
+
+			<div class="form-group row" [ngClass]="{'has-error':symbol.invalid && (symbol.dirty || symbol.touched || symbol.submitted), 'has-feedback':symbol.valid && (symbol.dirty || symbol.touched)}">
+				<label for="enter-symbol" class="col-lg-3 col-md-3  col-form-label titles"><b>Enter Stock Ticker Symbol:<span style="color: red;">*</span></b></label>
+				<div class="col-lg-6 col-md-4 form-elem">
+					<input matInput type="text" [(ngModel)]="stockInput" formControlName='symbol' class="form-control is-valid" id="symbol_ticker" name="symbol" placeholder="e.g. AAPL" [matAutocomplete]="auto" (keyup)="onKey($event)" required>
+						
+					<mat-autocomplete #auto="matAutocomplete">
+						<mat-option *ngFor="let ac of autoCompleteContent" [value]="ac.Symbol">{{ac.Symbol}} - {{ac.Name}} ({{ac.Exchange}})</mat-option>
+					</mat-autocomplete>
+
+					<div *ngIf="symbol.invalid && (symbol.dirty || symbol.touched)" class="invalid-feedback">Please enter a stock ticker symbol.</div>
+				</div>
+
+				<div class="col-lg-3 col-md-5 form-elem">
+					<button type="submit" class="btn btn-primary" [disabled]="symbol.invalid"><span class="glyphicon glyphicon-search"></span>&nbsp;Search</button>
+					<button type="clear" class="btn btn-default" (click)="clear()"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Clear</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="row">
+	<div class="col-lg-2 col-md-1 col-sm-1 col-xs-1"></div>
+	<div class="container col-lg-8 col-md-10 col-sm-10 col-xs-10 center_div" id="line"></div>
+</div>
+<div class="row">
+	<div class="col-lg-2 col-md-1 col-sm-1 col-xs-1"></div>
+	<div class="container col-lg-8 col-md-10 col-sm-10 col-xs-10 center_div" id="bottom_container">
+		<div *ngIf="isFav" [@enterAnimation]="animated"><fav-list></fav-list></div>
+		<div *ngIf="isDetails" [@enterAnimationDetails]><app-stock-details></app-stock-details></div>
+	</div>
+</div>

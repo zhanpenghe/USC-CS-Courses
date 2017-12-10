@@ -1,0 +1,64 @@
+<div class="panel panel-default" (window:resize)="onResize($event)">
+	<div class="panel-heading row">
+		<div class="col-sm-3 col-xs-2"><button type="button" class="btn btn-default" (click)="switchToFav()"><span class="glyphicon glyphicon-chevron-left"></span></button></div>
+		<div class="col-sm-6 col-xs-8" id="title"><b>Stock Details</b></div>
+	</div>
+	<div class="panel-body">
+		<ul class="nav nav-pills">
+			<li role="presentation" class="active responsive hand" (click)="switchToCurr()"><a data-toggle="tab"><span class="glyphicon glyphicon-dashboard"></span>&nbsp;{{ content[0] }}</a></li>
+			<li role="presentation" class="responsive hand" (click)="switchToHist()"><a data-toggle="tab"><span class="glyphicon glyphicon-stats"></span>&nbsp;{{ content[1] }}</a></li>
+			<li role="presentation" class="responsive hand" (click)="switchToNews()"><a data-toggle="tab"><span class="glyphicon glyphicon-link"></span>&nbsp;{{ content[2] }}</a></li>
+		</ul>
+
+		<div id="line"></div>
+
+		<div *ngIf="isCurr">
+			<div class="col-lg-6">
+				<div class="row">
+					<div class="col-lg-4 col-md-4 col-sm-6 col-xs-4"><b>Stock Details</b></div>
+					<div class="align-right">
+						<button class="btn btn-default" (click)="updateFavorite()" [disabled]="!done[0]||error[10]"><span id="smallStarStar" class="glyphicon" [ngClass]="{'glyphicon-star-empty':(!isfound(symbol)),'glyphicon-star':(isfound(symbol))}"></span></button>
+						<button class="btn btn-default" (click)="shareToFB()" [disabled]="!done[currChart]||error[10]"><img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png"></button>
+					</div>
+				</div>
+				<div *ngIf="!done[0]" class="table-progress"><app-progress-bar></app-progress-bar></div>
+				<div *ngIf="done[0]">
+					<div *ngIf="error[0]" class="alert alert-danger details-table">{{errors[0]}}</div>
+					<div *ngIf="!error[0]" class="details-table"><app-details></app-details></div>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<ul class="nav nav-tabs">
+					<li role="presentation" class="hand" [ngClass]="{'active':isActive(1)}" (click)="switchChart(0)"><a data-toggle="tab">Price</a></li>
+					<li role="presentation" class="hand" [ngClass]="{'active':isActive(2)}" (click)="switchChart(1)"><a data-toggle="tab">SMA</a></li>
+					<li role="presentation" class="hand" [ngClass]="{'active':isActive(3)}" (click)="switchChart(2)"><a data-toggle="tab">EMA</a></li>
+					<li role="presentation" class="hand" [ngClass]="{'active':isActive(4)}" (click)="switchChart(3)"><a data-toggle="tab">STOCH</a></li>
+					<li role="presentation" class="hand" [ngClass]="{'active':isActive(5)}" (click)="switchChart(4)"><a data-toggle="tab">RSI</a></li>
+					<li role="presentation" class="hand" [ngClass]="{'active':isActive(6)}"(click)="switchChart(5)"><a data-toggle="tab">ADX</a></li>
+					<li role="presentation" class="hand" [ngClass]="{'active':isActive(7)}" (click)="switchChart(6)"><a data-toggle="tab">CCI</a></li>
+					<li role="presentation" class="hand"[ngClass]="{'active':isActive(8)}" (click)="switchChart(7)"><a data-toggle="tab">BBANDS</a></li>
+					<li role="presentation" class="hand" [ngClass]="{'active':isActive(9)}" (click)="switchChart(8)"><a data-toggle="tab">MACD</a></li>
+				</ul>
+				<div *ngIf="!done[currChart]" class="hi-charts-progress"><app-progress-bar></app-progress-bar></div>
+				<div *ngIf="done[currChart]">
+					<div *ngIf="error[currChart]" class="alert alert-danger hi-chart-error">{{errors[currChart]}}</div>
+					<div *ngIf="!error[currChart]"><app-hi-charts></app-hi-charts></div>
+				</div>
+			</div>
+		</div>
+		<div *ngIf="isHist">
+			<div *ngIf="!done[10]" class="table-progress"><app-progress-bar></app-progress-bar></div>
+			<div *ngIf="done[10]">
+				<div *ngIf="error[10]" class="alert alert-danger error-hist">{{errors[10]}}</div>
+				<div *ngIf="!error[10]"><app-hist></app-hist></div>
+			</div>
+		</div>
+		<div *ngIf="isNews">
+			<div *ngIf="!done[11]" class="table-progress"><app-progress-bar></app-progress-bar></div>
+			<div *ngIf="done[11]">
+				<div *ngIf="error[11]" class="alert alert-danger">{{errors[11]}}</div>
+				<div *ngIf="!error[11]"><app-stock-news></app-stock-news></div>
+			</div>
+		</div>
+	</div>
+</div>

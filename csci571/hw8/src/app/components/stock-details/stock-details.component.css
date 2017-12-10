@@ -1,0 +1,65 @@
+.panel-heading{
+    margin-right: 0px;
+    margin-left: 0px;
+}
+.preloaded{
+	margin-bottom: 10px;
+}
+#title{
+	text-align: center;
+}
+#line{
+    margin-top: 20px;
+    margin-bottom: 10px;
+    height:1px;
+    background-color: grey;
+    border-color: grey;
+}
+
+img{
+	height: 27px;
+	width: 27px;
+}
+
+.glyphicon-star{
+   color: #f9d556;
+   font-size: 20px;
+}
+.glyphicon-star-empty{
+    color: black;
+    font-size: 20px;
+}
+
+#backbutton{
+    position: absolute;
+    bottom: 0;
+}
+
+.align-left{
+    float: left;
+}
+.align-right{
+    float: right;
+}
+.table-progress{
+    margin-top: 70px;
+}
+.details-table{
+    margin-top: 35px;
+}
+.hi-charts-progress{
+    margin-top: 28px;
+}
+
+hand: hover{
+    cursor: pointer;
+}
+
+.error-hist{
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.hi-chart-error{
+    margin-top: 20px;
+}

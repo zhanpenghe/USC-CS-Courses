@@ -1,0 +1,37 @@
+form{
+    min-height: 80px;
+}
+
+.form-elem{
+    margin-top: 10px;
+}
+
+.center_div{
+    background-color: white;
+    margin-top: 10px;
+    border-radius: 10px;
+}
+.titles{
+    font-size: 95%;
+    margin-top: 10px;
+}
+.has-error{
+    border-color: red;
+}
+.has-success{
+    border-color: blue;
+}
+#title{
+    padding-top: 20px;
+    margin-bottom: 0px;
+}
+#line{
+    margin-top: 20px;
+    margin-bottom: 10px;
+    height:1px;
+    border-radius: 0px;
+}
+#bottom_container{
+    padding-top: 15px;
+}
+
