@@ -1,0 +1,23 @@
+{
+  "name": "hw9_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "follow-redirects": "^1.2.6",
+    "moment-timezone": "^0.5.14",
+    "morgan": "^1.9.0",
+    "path": "^0.12.7",
+    "querystring": "^0.2.0",
+    "request": "^2.83.0",
+    "xml2js": "^0.4.19"
+  }
+}

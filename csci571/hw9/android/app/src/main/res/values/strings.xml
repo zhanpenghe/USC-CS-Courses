@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">hw9</string>
+    <string name="title_activity_stock_details">StockDetailsActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_details">DetailsActivity</string>
+    <string name="tab_text_1">CURRENT</string>
+    <string name="tab_text_2">HISTORICAL</string>
+    <string name="tab_text_3">NEWS</string>
+    <string-array name="indicators_options">
+        <item>Price</item>
+        <item>SMA</item>
+        <item>EMA</item>
+        <item>STOCH</item>
+        <item>RSI</item>
+        <item>ADX</item>
+        <item>CCI</item>
+        <item>BBANDS</item>
+        <item>MACD</item>
+    </string-array>
+
+    <string-array name="sort_by">
+        <item>Default</item>
+        <item>Symbol</item>
+        <item>Price</item>
+        <item>Change</item>
+        <item>Change (%)</item>
+    </string-array>
+
+    <string-array name="order">
+        <item>Ascending</item>
+        <item>Descending</item>
+    </string-array>
+
+    <string name="facebook_app_id">506789079696039</string>
+    <string name="fb_login_protocol_scheme">fb506789079696039</string>
+
+
+</resources>

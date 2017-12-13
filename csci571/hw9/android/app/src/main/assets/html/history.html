@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+</head>
+<body>
+
+<script>
+		function setChart(hicharts, symbol){
+			Highcharts.stockChart('container', {
+            title: {
+              text: symbol+' Stock Value'
+            },
+            subtitle: {
+              useHTML: true,
+              text:'<a target="_blank" href="https://www.alphavantage.co/">Source: Alpha Vantage</a>',
+              style:{
+                "color": "#0000FF"
+              }
+            },
+                rangeSelector: {
+                    selected: 0,
+                    buttons: [
+                    {
+                        type: 'month',
+                        count: 1,
+                        text: '1m'
+                    }, {
+                        type: 'month',
+                        count: 3,
+                        text: '3m'
+                    }, {
+                        type: 'month',
+                        count: 6,
+                        text: '6m'
+                    }, {
+                        type: 'year',
+                        count: 1,
+                        text: '1y'
+                    }, {
+                        type: 'all',
+                        text: 'All'
+                    }]
+                },
+                series: [{
+                    name: 'Stock Value',
+                    data: hicharts,
+                    fillOpacity: 0.7,
+                    color: "#9cbfe5",
+                    lineColor: "#92a9c5",
+                    type: 'area',
+                    tooltip: {
+                        valueDecimals: 2
+                    }
+                }],
+
+              tooltip: {
+                split: false,
+                },
+            });
+		}
+	</script>
+<div id="container"></div>
+</body>
+</html>
