@@ -8,7 +8,7 @@ def argmax(lst):
 
 class HMM(object):
 
-    def __init__(self, smoothing=1e-4, start_state='START_STATE'):
+    def __init__(self, smoothing=1e-4, start_state='START_STATE', end_state='END_STATE'):
         super(HMM, self).__init__()
         self.transition_prob = {}
         self.emission_prob = {}
@@ -19,14 +19,9 @@ class HMM(object):
         self.tags = []
         self.observations = []
         self.start_state = start_state
+        self.end_state = end_state
 
-    def learn(self, words, tags, percentage=1):
-        """
-        :param words: A list of sentences(also list).
-        :param tags: A list of sequences of tags corrisponding to the words
-        :param percentage: The portion of corpus that the model learns from.
-        """
-
+    def _count_words_and_tags(self, words, tags, percentage=1):
         assert len(words) == len(tags)
 
         # Save the data for future use for evaluation of training accuracy
@@ -40,9 +35,9 @@ class HMM(object):
         observations_set = {}
 
         # 0.3 <= length <= 1.0, scale to 1 or 0.3 if out of bound
-        learned_length = int(len(words)*max([min([percentage, 1.0]), 0.3]))
+        learned_length = int(len(words) * max([min([percentage, 1.0]), 0.3]))
 
-        print('Start learning from data of length: '+str(learned_length))
+        print('Start learning from data of length: ' + str(learned_length))
 
         for i in range(len(words)):
 
@@ -52,15 +47,15 @@ class HMM(object):
             # Starting state->first state
             # First state->first observation
 
-            if tag_seq[0] not in transition_counts['START_STATE']:
-                transition_counts['START_STATE'][tag_seq[0]] = 0
+            if tag_seq[0] not in transition_counts[self.start_state]:
+                transition_counts[self.start_state][tag_seq[0]] = 0
             if tag_seq[0] not in emission_counts:
                 emission_counts[tag_seq[0]] = {}
             if observation_seq[0] not in emission_counts[tag_seq[0]]:
                 emission_counts[tag_seq[0]][observation_seq[0]] = 0
 
-            transition_counts['START_STATE'][tag_seq[0]] = transition_counts['START_STATE'][tag_seq[0]]+1
-            emission_counts[tag_seq[0]][observation_seq[0]] = emission_counts[tag_seq[0]][observation_seq[0]]+1
+            transition_counts[self.start_state][tag_seq[0]] = transition_counts[self.start_state][tag_seq[0]] + 1
+            emission_counts[tag_seq[0]][observation_seq[0]] = emission_counts[tag_seq[0]][observation_seq[0]] + 1
 
             if tag_seq[0] not in tags_set:
                 tags_set[tag_seq[0]] = None
@@ -69,16 +64,16 @@ class HMM(object):
 
             for j in range(1, len(observation_seq)):
 
-                if tag_seq[j-1] not in transition_counts:
-                    transition_counts[tag_seq[j-1]] = {}
-                if tag_seq[j] not in transition_counts[tag_seq[j-1]]:
-                    transition_counts[tag_seq[j-1]][tag_seq[j]] = 0
+                if tag_seq[j - 1] not in transition_counts:
+                    transition_counts[tag_seq[j - 1]] = {}
+                if tag_seq[j] not in transition_counts[tag_seq[j - 1]]:
+                    transition_counts[tag_seq[j - 1]][tag_seq[j]] = 0
                 if tag_seq[j] not in emission_counts:
                     emission_counts[tag_seq[j]] = {}
                 if observation_seq[j] not in emission_counts[tag_seq[j]]:
                     emission_counts[tag_seq[j]][observation_seq[j]] = 0
 
-                transition_counts[tag_seq[j-1]][tag_seq[j]] = transition_counts[tag_seq[j-1]][tag_seq[j]] + 1
+                transition_counts[tag_seq[j - 1]][tag_seq[j]] = transition_counts[tag_seq[j - 1]][tag_seq[j]] + 1
                 emission_counts[tag_seq[j]][observation_seq[j]] = emission_counts[tag_seq[j]][observation_seq[j]] + 1
 
                 if tag_seq[j] not in tags_set:
@@ -86,8 +81,26 @@ class HMM(object):
                 if observation_seq[j] not in observations_set:
                     observations_set[observation_seq[j]] = None
 
+            # Last tag->end tag
+            last_tag = tag_seq[len(tag_seq) - 1]
+            if last_tag not in transition_counts:
+                transition_counts[last_tag] = {}
+            if self.end_state not in transition_counts[last_tag]:
+                transition_counts[last_tag][self.end_state] = 0
+            transition_counts[last_tag][self.end_state] = transition_counts[last_tag][self.end_state] + 1
+
         self.tags = list(tags_set.keys())
         self.observations = list(observations_set.keys())
+
+        return transition_counts, emission_counts
+
+    def learn(self, words, tags, percentage=1):
+        """
+        :param words: A list of sentences(also list).
+        :param tags: A list of sequences of tags corrisponding to the words
+        :param percentage: The portion of corpus that the model learns from.
+        """
+        transition_counts, emission_counts = self._count_words_and_tags(words, tags, percentage)
 
         # Compute the posterior probabilities P(curr_state|prev_state) and P(observation|curr_state)
         for state in transition_counts:
@@ -160,16 +173,16 @@ class HMM(object):
         assert type(sentence) is list
         assert len(sentence) > 0
 
-        print(self.tags)
+        #print(self.tags)
         nb_tags = len(self.tags)
 
         back_pointers = [[] for _ in range(nb_tags)]
         path_probs = [self.get_transition_prob(self.start_state, self.tags[i])*self.get_emission_prob(self.tags[i], sentence[0]) for i in range(nb_tags)]  # A list of list of tuples that contains probabilities and backpointers
 
-        print(path_probs)
+        #print(path_probs)
         for s in range(1, len(sentence)):
 
-            print('\n---\nWorking on word', sentence[s])
+            #print('\n---\nWorking on word', sentence[s])
             temp_probs = path_probs.copy()
             for i in range(nb_tags):
 
@@ -178,9 +191,9 @@ class HMM(object):
                 max_index = 0
 
                 for j in range(nb_tags):
-                    print('\nComputed:', temp_probs[j], '*', self.get_transition_prob(self.tags[j], tag), '*',
-                          self.get_emission_prob(tag, sentence[s]))
-                    print(self.tags[j],'->',self.tags[i],'->',sentence[s])
+                    #print('\nComputed:', temp_probs[j], '*', self.get_transition_prob(self.tags[j], tag), '*',
+                    #      self.get_emission_prob(tag, sentence[s]))
+                    #print(self.tags[j],'->',self.tags[i],'->',sentence[s])
 
                     prob_j_i = temp_probs[j] \
                                 * self.get_transition_prob(self.tags[j], tag) \
@@ -189,16 +202,20 @@ class HMM(object):
                     if prob_j_i >= max_prob:
                         max_prob = prob_j_i
                         max_index = j
-                    print('Result:', prob_j_i)
-                    print('Current max_prob:', max_prob, 'max_index', max_index)
-                    print('Current state:', path_probs, back_pointers)
+                    #print('Result:', prob_j_i)
+                    #print('Current max_prob:', max_prob, 'max_index', max_index)
+                    #print('Current state:', path_probs, back_pointers)
 
                 back_pointers[i].append(max_index)
                 path_probs[i] = max_prob
-                print('Current state:', path_probs, back_pointers)
+                #print('Current state:', path_probs, back_pointers)
 
-        print(path_probs)
-        print(back_pointers)
+        #print(path_probs)
+        #print(back_pointers)
+
+        # End state transition probability
+        for i in range(len(path_probs)):
+            path_probs[i] = path_probs[i]*self.get_transition_prob(self.tags[i], self.end_state)
 
         # Backtracking to get the most possible tag sequence
         max_index = argmax(path_probs)
@@ -224,6 +241,26 @@ class HMM(object):
             return self.emission_prob[tag][observation]
         except Exception as e:
             return self.smoothing
+
+
+class SecondOrderHMM(object):
+
+    def __init__(self, smoothing=1e-4, start_state='START_STATE', end_state='END_STATE'):
+        super(HMM, self).__init__()
+        self.transition_prob = {}
+        self.emission_prob = {}
+        self.smoothing = smoothing
+        self.training_words = None
+        self.training_tags = None
+
+        self.tags = []
+        self.observations = []
+        self.start_state = start_state
+        self.end_state = end_state
+
+    def learn(self):
+        pass
+
 
 
 def load_tagged_data(path):
@@ -255,13 +292,30 @@ def test():
     dev_words, dev_tags = load_tagged_data('./dataset/en_dev_tagged.txt')
     hmm = HMM()
     hmm.learn(words=train_words, tags=train_tags)
-    print('Training finished.')
-    print(hmm.get_path_from_indexes(hmm.decode(dev_words[1])))
-    '''
+    #print('Training finished.')
+    #print(hmm.get_path_from_indexes(hmm.decode(dev_words[1])))
+
+    results = []
+
+    print('Start decoding', len(dev_words), 'sentences')
     for sentence in dev_words:
-        tags = hmm.decode(sentence)
-        print(tags)
-    '''
+        tags = hmm.get_path_from_indexes(hmm.decode(sentence))
+        results.append(tags)
+
+    print('Done.\nStart calculate accuracy...')
+
+    count = 0
+    correct_tags = 0
+    for i in range(len(results)):
+        tag_seq = results[i]
+        for j in range(len(tag_seq)):
+            count += 1
+            if results[i][j] == dev_tags[i][j]:
+                correct_tags += 1
+
+    print(count, correct_tags, correct_tags/count)
+
+
     hmm.save_model()
 
 
