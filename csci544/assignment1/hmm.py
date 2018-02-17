@@ -89,8 +89,22 @@ class HMM(object):
                 transition_counts[last_tag][self.end_state] = 0
             transition_counts[last_tag][self.end_state] = transition_counts[last_tag][self.end_state] + 1
 
-        self.tags = list(tags_set.keys())
-        self.observations = list(observations_set.keys())
+        self.tags = set(tags_set.keys())
+        self.tags.add(self.start_state)
+        self.tags.add(self.end_state)
+        self.observations = set(observations_set.keys())
+
+        # Add one for transition probability
+        for prev_tag in self.tags:
+            for curr_tag in self.tags:
+                if prev_tag not in transition_counts:
+                    transition_counts[prev_tag] = {}
+                if curr_tag not in transition_counts[prev_tag]:
+                    transition_counts[prev_tag][curr_tag] = 0
+                transition_counts[prev_tag][curr_tag] = transition_counts[prev_tag][curr_tag] + 1
+
+        self.tags.remove(self.start_state)
+        self.tags.remove(self.end_state)
 
         return transition_counts, emission_counts
 
@@ -175,9 +189,10 @@ class HMM(object):
 
         #print(self.tags)
         nb_tags = len(self.tags)
+        tag_list = list(self.tags)
 
         back_pointers = [[] for _ in range(nb_tags)]
-        path_probs = [self.get_transition_prob(self.start_state, self.tags[i])*self.get_emission_prob(self.tags[i], sentence[0]) for i in range(nb_tags)]  # A list of list of tuples that contains probabilities and backpointers
+        path_probs = [self.get_transition_prob(self.start_state, tag_list[i])*self.get_emission_prob(tag_list[i], sentence[0]) for i in range(nb_tags)]  # A list of list of tuples that contains probabilities and backpointers
 
         #print(path_probs)
         for s in range(1, len(sentence)):
@@ -186,7 +201,7 @@ class HMM(object):
             temp_probs = path_probs.copy()
             for i in range(nb_tags):
 
-                tag = self.tags[i]
+                tag = tag_list[i]
                 max_prob = 0
                 max_index = 0
 
@@ -196,7 +211,7 @@ class HMM(object):
                     #print(self.tags[j],'->',self.tags[i],'->',sentence[s])
 
                     prob_j_i = temp_probs[j] \
-                                * self.get_transition_prob(self.tags[j], tag) \
+                                * self.get_transition_prob(tag_list[j], tag) \
                                 * self.get_emission_prob(tag, sentence[s])
 
                     if prob_j_i >= max_prob:
@@ -215,7 +230,7 @@ class HMM(object):
 
         # End state transition probability
         for i in range(len(path_probs)):
-            path_probs[i] = path_probs[i]*self.get_transition_prob(self.tags[i], self.end_state)
+            path_probs[i] = path_probs[i]*self.get_transition_prob(tag_list[i], self.end_state)
 
         # Backtracking to get the most possible tag sequence
         max_index = argmax(path_probs)
@@ -224,22 +239,29 @@ class HMM(object):
         for i in reversed(range(len(sentence)-1)):
             bp = back_pointers[path[0]][i]
             path.insert(0, bp)
-
+        path = self.get_path_from_indexes(path, tag_list)
         return path
 
-    def get_path_from_indexes(self, path_indexes):
-        return [self.tags[i] for i in path_indexes]
+    def get_path_from_indexes(self, path_indexes, tag_list):
+        return [tag_list[i] for i in path_indexes]
 
     def get_transition_prob(self, prev_tag, tag):
         try:
             return self.transition_prob[prev_tag][tag]
         except Exception as e:
+            print('bugs..')
             return self.smoothing
 
     def get_emission_prob(self, tag, observation):
         try:
+            if observation not in self.observations:
+                return 1
+            if observation not in self.emission_prob[tag]:
+                return 0
             return self.emission_prob[tag][observation]
         except Exception as e:
+            print(e)
+            print('Met unseen word:', observation)
             return self.smoothing
 
 
@@ -257,6 +279,9 @@ class SecondOrderHMM(object):
         self.observations = []
         self.start_state = start_state
         self.end_state = end_state
+
+    def _count_words_and_tags(self, words, tags):
+        pass
 
     def learn(self):
         pass
@@ -288,8 +313,8 @@ def load_tagged_data(path):
 
 
 def test():
-    train_words, train_tags = load_tagged_data('./dataset/en_train_tagged.txt')
-    dev_words, dev_tags = load_tagged_data('./dataset/en_dev_tagged.txt')
+    train_words, train_tags = load_tagged_data('./dataset/zh_train_tagged.txt')
+    dev_words, dev_tags = load_tagged_data('./dataset/zh_dev_tagged.txt')
     hmm = HMM()
     hmm.learn(words=train_words, tags=train_tags)
     #print('Training finished.')
@@ -299,7 +324,7 @@ def test():
 
     print('Start decoding', len(dev_words), 'sentences')
     for sentence in dev_words:
-        tags = hmm.get_path_from_indexes(hmm.decode(sentence))
+        tags = hmm.decode(sentence)
         results.append(tags)
 
     print('Done.\nStart calculate accuracy...')
