@@ -144,20 +144,24 @@ class HMM(object):
             # Check whether the probabilities satisfy markov chain property
             assert (abs(sum(self.emission_prob[state].values()) - 1.0) <= 1e-5)
 
-    def save_model(
-            self,
-            file_path='./hmmmodel.txt'
-    ):
+    def save_model(self, file_path='./hmmmodel.txt'):
         with open(file_path, 'w') as f:
-            f.write((str(self.transition_prob)+'\n'+str(self.emission_prob)))
+            f.write((str(self.transition_prob)+'\n'+str(self.emission_prob))+'\n'+str(self.tags)+'\n'+str(self.observations))
 
-    def load_model(
-            self,
-            transition_prob_path='./transition_prob.txt',
-            emission_prob_path='./emission_prob.txt'
-    ):
+    def load_model(self, file_path='./hmmmodel.txt'):
         import ast
 
+        with open(file_path, 'r') as f:
+
+            content = f.read()
+            transition_str, emission_str, tags, obs = content.split('\n')
+
+            self.transition_prob = ast.literal_eval(transition_str)
+            self.emission_prob = ast.literal_eval(emission_str)
+            self.tags = ast.literal_eval(tags)
+            self.observations = ast.literal_eval(obs)
+
+        '''
         with open(transition_prob_path, 'r') as f:
             prob_str = f.read()
 
@@ -175,6 +179,7 @@ class HMM(object):
             for state in self.emission_prob:
                 # print(sum(self.emission_prob[state].values()))
                 assert (abs(sum(self.emission_prob[state].values()) - 1.0) <= 1e-5)
+        '''
 
     def decode(self, sentence):
 
@@ -261,7 +266,6 @@ class HMM(object):
             return self.emission_prob[tag][observation]
         except Exception as e:
             print(e)
-            print('Met unseen word:', observation)
             return self.smoothing
 
 
@@ -286,6 +290,17 @@ class SecondOrderHMM(object):
     def learn(self):
         pass
 
+
+def load_raw_data(path):
+
+    X = []
+
+    with open(path, 'r') as file:
+        for line in file:
+            tokens = line.split(' ')
+            words = [w.strip() for w in tokens]
+            X.append(words)
+    return X
 
 
 def load_tagged_data(path):
@@ -312,9 +327,24 @@ def load_tagged_data(path):
     return X, y
 
 
+def save_result(words, tags, path='./hmmoutput.txt'):
+    result_str = ''
+    for i in range(len(words)):
+        for j in range(len(words[i])):
+            result_str+=words[i][j]
+            result_str+='/'
+            result_str+=tags[i][j]
+            if j < len(words[i])-1:
+                result_str+=' '
+        result_str+='\n'
+
+    with open(path, 'w') as f:
+        f.write(result_str)
+
+
 def test():
-    train_words, train_tags = load_tagged_data('./dataset/zh_train_tagged.txt')
-    dev_words, dev_tags = load_tagged_data('./dataset/zh_dev_tagged.txt')
+    train_words, train_tags = load_tagged_data('./dataset/en_train_tagged.txt')
+    dev_words, dev_tags = load_tagged_data('./dataset/en_dev_tagged.txt')
     hmm = HMM()
     hmm.learn(words=train_words, tags=train_tags)
     #print('Training finished.')
@@ -369,4 +399,5 @@ def test2():
     print(hmm.get_path_from_indexes(hmm.decode(test_sentence)))
 
 
-test()
+if __name__ == '__main__':
+    test()
