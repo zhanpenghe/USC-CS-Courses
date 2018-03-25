@@ -24,18 +24,6 @@ Remarks:
 #include "SL_shared_memory.h"
 #include "SL_man.h"
 
-// defines
-
-// local variables
-// static double      start_time = 0.0;
-// static SL_DJstate  target[N_DOFS+1];
-// static double      delta_t = 0.01;
-// static double      duration = 2.0;
-// static double      time_to_go;
-// static int         target_ = 0;
-// static double      initial_state_L_SAA = -1.0314133014066027*0.95;
-// static double      initial_state_L_EB = 1.4356102189600017*0.95;
-// static int         tick = 0;
 
 static double      time_step;
 static double     *cart;
@@ -67,14 +55,14 @@ static void init_vars(void);
 
 static int 
 cubic_spline_next_step (double x,double xd, double xdd, double t, double td, double tdd,
-			double t_togo, double dt,
-			double *x_next, double *xd_next, double *xdd_next);
+      double t_togo, double dt,
+      double *x_next, double *xd_next, double *xdd_next);
 
 
 /*****************************************************************************
 ******************************************************************************
-Function Name	: add_cubic_spline_task
-Date		: Feb 1999
+Function Name : add_cubic_spline_task
+Date    : Feb 1999
 Remarks:
 
 adds the task to the task menu
@@ -102,15 +90,15 @@ add_cubic_spline_task( void )
 
 
     addTask("Cubic Spline Task", init_cubic_spline_task, 
-	   run_cubic_spline_task, change_cubic_spline_task);
+     run_cubic_spline_task, change_cubic_spline_task);
   }
 
 }    
 
 /*****************************************************************************
 ******************************************************************************
-  Function Name	: init_cubic_spline_task
-  Date		: Dec. 1997
+  Function Name : init_cubic_spline_task
+  Date    : Dec. 1997
 
   Remarks:
 
@@ -215,8 +203,8 @@ init_vars(void)
 
 /*****************************************************************************
 ******************************************************************************
-  Function Name	: run_cubic_spline_task
-  Date		: Dec. 1997
+  Function Name : run_cubic_spline_task
+  Date    : Dec. 1997
 
   Remarks:
 
@@ -251,15 +239,17 @@ run_cubic_spline_task(void)
   // current time
   double t = movement_time - tau;
   
-  // to determine current target state 
+  // to determine current target state and the time left to finish the current axis
   double axis_time_left = (double)axis_time - (t - axis_time*((int)(t/axis_time)));
 
   if(axis_time_left <= time_step){
 
-    if(tick<=(int)(axis_time / time_step)*2  && tick >= (int)(axis_time / time_step)-30)
-    printf("catch!!! time left: %f\n", axis_time_left);
+    printf("[INFO] Catch time of 0! time left: %.2f. Current time: %.2f\n", axis_time_left, t);
+
     axis_time_left = axis_time;
     axis_id = (axis_id+1)%4;
+    
+    printf("[INFO] Switch to task: %d, time left updated: %f\n", axis_id, axis_time_left);
   }
   double x_target = xbasis;
   double z_target = zbasis;
@@ -290,10 +280,6 @@ run_cubic_spline_task(void)
   double x_next=0.0, x_next_d=0.0, x_next_dd=0.0;
   double z_next=0.0, z_next_d=0.0, z_next_dd=0.0;
 
-  // if(tick<(int)(axis_time / time_step)*2){
-  //   printf("%.2f, %.2f\n", cnext[RIGHT_HAND].x[_X_], cnext[RIGHT_HAND].x[_Z_]);
-  // }
-
   cubic_spline_next_step (cnext[RIGHT_HAND].x[_X_], cnext[RIGHT_HAND].xd[_X_], cnext[RIGHT_HAND].xdd[_X_], x_target, 0.0, 0.0,
       axis_time_left, time_step, &x_next, &x_next_d, &x_next_dd);
   cubic_spline_next_step (cnext[RIGHT_HAND].x[_Z_], cnext[RIGHT_HAND].xd[_Z_], cnext[RIGHT_HAND].xdd[_Z_], z_target, 0.0, 0.0,
@@ -305,9 +291,9 @@ run_cubic_spline_task(void)
   // cnext[RIGHT_HAND].xd[_X_] = amp * wx * cos(wx*t - PI/2.0);
   // cnext[RIGHT_HAND].xd[_Z_] = amp * wz * cos(wz*t);
 
-  if(tick % 100 == 0 && tick <= 5000){
-    printf("task:%d, time: %.4f\n", axis_id, axis_time_left);
-  }
+  // if(tick % 100 == 0 && tick <= 5000){
+  //   printf("task:%d, time: %.4f\n", axis_id, axis_time_left);
+  // }
 
 
 
@@ -379,8 +365,8 @@ run_cubic_spline_task(void)
 
 /*****************************************************************************
 ******************************************************************************
-  Function Name	: change_cubic_spline_task
-  Date		: Dec. 1997
+  Function Name : change_cubic_spline_task
+  Date    : Dec. 1997
 
   Remarks:
 
@@ -428,8 +414,8 @@ using min jerk splines
  ******************************************************************************/
 static int 
 cubic_spline_next_step (double x,double xd, double xdd, double t, double td, double tdd,
-			double t_togo, double dt,
-			double *x_next, double *xd_next, double *xdd_next)
+      double t_togo, double dt,
+      double *x_next, double *xd_next, double *xdd_next)
 
 {
   
