@@ -24,6 +24,18 @@ Remarks:
 #include "SL_shared_memory.h"
 #include "SL_man.h"
 
+// defines
+
+// local variables
+// static double      start_time = 0.0;
+// static SL_DJstate  target[N_DOFS+1];
+// static double      delta_t = 0.01;
+// static double      duration = 2.0;
+// static double      time_to_go;
+// static int         target_ = 0;
+// static double      initial_state_L_SAA = -1.0314133014066027*0.95;
+// static double      initial_state_L_EB = 1.4356102189600017*0.95;
+// static int         tick = 0;
 
 static double      time_step;
 static double     *cart;
@@ -39,7 +51,7 @@ double xbasis;
 double zbasis;
 double amp;
 
-int axis_time = 4; // the time to finish an axis for the square
+int axis_time = 1; // the time to finish an axis for the square
 int axis_id = 1;
 int tick = 0;
 
@@ -55,14 +67,14 @@ static void init_vars(void);
 
 static int 
 cubic_spline_next_step (double x,double xd, double xdd, double t, double td, double tdd,
-      double t_togo, double dt,
-      double *x_next, double *xd_next, double *xdd_next);
+			double t_togo, double dt,
+			double *x_next, double *xd_next, double *xdd_next);
 
 
 /*****************************************************************************
 ******************************************************************************
-Function Name : add_cubic_spline_task
-Date    : Feb 1999
+Function Name	: add_cubic_spline_task
+Date		: Feb 1999
 Remarks:
 
 adds the task to the task menu
@@ -90,15 +102,15 @@ add_cubic_spline_task( void )
 
 
     addTask("Cubic Spline Task", init_cubic_spline_task, 
-     run_cubic_spline_task, change_cubic_spline_task);
+	   run_cubic_spline_task, change_cubic_spline_task);
   }
 
 }    
 
 /*****************************************************************************
 ******************************************************************************
-  Function Name : init_cubic_spline_task
-  Date    : Dec. 1997
+  Function Name	: init_cubic_spline_task
+  Date		: Dec. 1997
 
   Remarks:
 
@@ -134,26 +146,26 @@ init_cubic_spline_task(void)
   for (i=1; i<=n_dofs; ++i)
     target[i] = joint_default_state[i];
 
-  target[R_SFE].th = -1.5;
-  target[R_HR].th  = 1.0;
-  target[R_EB].th  = 1.5;
+  target[L_SFE].th = -1.5;
+  target[L_HR].th  = 1.0;
+  target[L_EB].th  = 1.5;
 
   if (!go_target_wait_ID(target))
     return FALSE;
 
   time_step = 1./(double)task_servo_rate;
-  movement_time = 200.0;
+  movement_time = 2000.0;
   tau = movement_time;
 
-  /* we move with the right hand */
-  cstatus[(RIGHT_HAND-1)*6+_X_] = TRUE;
-  cstatus[(RIGHT_HAND-1)*6+_Y_] = TRUE;
-  cstatus[(RIGHT_HAND-1)*6+_Z_] = TRUE;
+  /* we move with the LEFT hand */
+  cstatus[(LEFT_HAND-1)*6+_X_] = TRUE;
+  cstatus[(LEFT_HAND-1)*6+_Y_] = TRUE;
+  cstatus[(LEFT_HAND-1)*6+_Z_] = TRUE;
 
   /* choose as target 15 cm distance in x direction */
-  ctarget[RIGHT_HAND].x[_X_] = cart_des_state[RIGHT_HAND].x[_X_] + 0.15;
-  ctarget[RIGHT_HAND].x[_Y_] = cart_des_state[RIGHT_HAND].x[_Y_] + 0.1;
-  ctarget[RIGHT_HAND].x[_Z_] = cart_des_state[RIGHT_HAND].x[_Z_] + 0.1;
+  ctarget[LEFT_HAND].x[_X_] = cart_des_state[LEFT_HAND].x[_X_] + 0.15;
+  ctarget[LEFT_HAND].x[_Y_] = cart_des_state[LEFT_HAND].x[_Y_] + 0.1;
+  ctarget[LEFT_HAND].x[_Z_] = cart_des_state[LEFT_HAND].x[_Z_] + 0.1;
 
 
   /* the cnext state is the desired state as seen form this program */
@@ -161,7 +173,7 @@ init_cubic_spline_task(void)
     cnext[i] = cart_des_state[i];
 
   //*/
-  xbasis = 0.07;
+  xbasis = -0.07;
   zbasis = -0.03;
   amp = 0.015;
   /*/
@@ -170,8 +182,8 @@ init_cubic_spline_task(void)
       printf("A:");
       scanf("%lf",&amp);
   //*/
-  cnext[RIGHT_HAND].x[_X_] = xbasis;
-  cnext[RIGHT_HAND].x[_Z_] = zbasis;
+  cnext[LEFT_HAND].x[_X_] = xbasis;
+  cnext[LEFT_HAND].x[_Z_] = zbasis;
   go_cart_target_wait(cnext, cstatus, 5);
 
   /* ready to go */
@@ -203,8 +215,8 @@ init_vars(void)
 
 /*****************************************************************************
 ******************************************************************************
-  Function Name : run_cubic_spline_task
-  Date    : Dec. 1997
+  Function Name	: run_cubic_spline_task
+  Date		: Dec. 1997
 
   Remarks:
 
@@ -242,15 +254,6 @@ run_cubic_spline_task(void)
   // to determine current target state and the time left to finish the current axis
   double axis_time_left = (double)axis_time - (t - axis_time*((int)(t/axis_time)));
 
-  if(axis_time_left <= time_step){
-
-    printf("[INFO] Catch time of 0! time left: %.2f. Current time: %.2f\n", axis_time_left, t);
-
-    axis_time_left = axis_time;
-    axis_id = (axis_id+1)%4;
-    
-    printf("[INFO] Switch to task: %d, time left updated: %f\n", axis_id, axis_time_left);
-  }
   double x_target = xbasis;
   double z_target = zbasis;
   
@@ -275,21 +278,32 @@ run_cubic_spline_task(void)
       break;
   }
 
+  if(axis_time_left <= time_step){
+
+    printf("[INFO] Catch time of 0! time left: %.2f. Current time: %.2f\n", axis_time_left, t);
+
+    axis_time_left = axis_time;
+    axis_id = (axis_id+1)%4;
+    
+    printf("[INFO] Switch to task: %d, time left updated: %f\n", axis_id, axis_time_left);
+    printf("[INFO] Current task: (X_TARGET, Z_TARGET)=(%.2f, %.2f)\n", x_target, z_target);
+  }
+
   tick += 1;
 
   double x_next=0.0, x_next_d=0.0, x_next_dd=0.0;
   double z_next=0.0, z_next_d=0.0, z_next_dd=0.0;
 
-  cubic_spline_next_step (cnext[RIGHT_HAND].x[_X_], cnext[RIGHT_HAND].xd[_X_], cnext[RIGHT_HAND].xdd[_X_], x_target, 0.0, 0.0,
+  cubic_spline_next_step (cnext[LEFT_HAND].x[_X_], cnext[LEFT_HAND].xd[_X_], cnext[LEFT_HAND].xdd[_X_], x_target, 0.0, 0.0,
       axis_time_left, time_step, &x_next, &x_next_d, &x_next_dd);
-  cubic_spline_next_step (cnext[RIGHT_HAND].x[_Z_], cnext[RIGHT_HAND].xd[_Z_], cnext[RIGHT_HAND].xdd[_Z_], z_target, 0.0, 0.0,
+  cubic_spline_next_step (cnext[LEFT_HAND].x[_Z_], cnext[LEFT_HAND].xd[_Z_], cnext[LEFT_HAND].xdd[_Z_], z_target, 0.0, 0.0,
       axis_time_left, time_step, &z_next, &z_next_d, &z_next_dd);
 
   // double wx = PI/5.0, wz = wx*2.0;
-  // cnext[RIGHT_HAND].x[_X_] = amp * sin(wx*t - PI/2.0) + amp + xbasis;
-  // cnext[RIGHT_HAND].x[_Z_] = amp * sin(wz*t) + zbasis;
-  // cnext[RIGHT_HAND].xd[_X_] = amp * wx * cos(wx*t - PI/2.0);
-  // cnext[RIGHT_HAND].xd[_Z_] = amp * wz * cos(wz*t);
+  // cnext[LEFT_HAND].x[_X_] = amp * sin(wx*t - PI/2.0) + amp + xbasis;
+  // cnext[LEFT_HAND].x[_Z_] = amp * sin(wz*t) + zbasis;
+  // cnext[LEFT_HAND].xd[_X_] = amp * wx * cos(wx*t - PI/2.0);
+  // cnext[LEFT_HAND].xd[_Z_] = amp * wz * cos(wz*t);
 
   // if(tick % 100 == 0 && tick <= 5000){
   //   printf("task:%d, time: %.4f\n", axis_id, axis_time_left);
@@ -297,12 +311,12 @@ run_cubic_spline_task(void)
 
 
 
-  cnext[RIGHT_HAND].x[_X_] = x_next;
-  cnext[RIGHT_HAND].x[_Z_] = z_next;
-  cnext[RIGHT_HAND].xd[_X_] = x_next_d;
-  cnext[RIGHT_HAND].xd[_Z_] = z_next_d;
-  cnext[RIGHT_HAND].xdd[_X_] = x_next_dd;
-  cnext[RIGHT_HAND].xdd[_Z_] = z_next_dd;
+  cnext[LEFT_HAND].x[_X_] = x_next;
+  cnext[LEFT_HAND].x[_Z_] = z_next;
+  cnext[LEFT_HAND].xd[_X_] = x_next_d;
+  cnext[LEFT_HAND].xd[_Z_] = z_next_d;
+  cnext[LEFT_HAND].xdd[_X_] = x_next_dd;
+  cnext[LEFT_HAND].xdd[_Z_] = z_next_dd;
 
 
   // if(tick <= (int)(axis_time / time_step)*2 && tick >= (int)(axis_time / time_step)-30){
@@ -365,8 +379,8 @@ run_cubic_spline_task(void)
 
 /*****************************************************************************
 ******************************************************************************
-  Function Name : change_cubic_spline_task
-  Date    : Dec. 1997
+  Function Name	: change_cubic_spline_task
+  Date		: Dec. 1997
 
   Remarks:
 
@@ -414,8 +428,8 @@ using min jerk splines
  ******************************************************************************/
 static int 
 cubic_spline_next_step (double x,double xd, double xdd, double t, double td, double tdd,
-      double t_togo, double dt,
-      double *x_next, double *xd_next, double *xdd_next)
+			double t_togo, double dt,
+			double *x_next, double *xd_next, double *xdd_next)
 
 {
   
