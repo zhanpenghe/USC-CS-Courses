@@ -38,6 +38,17 @@ def load_dev_set(path):
     return ids, sentences
 
 
+def load_dev_key(path):
+
+    keys = dict()
+    with open(path, 'r') as f:
+        for line in f:
+            infos = line.split()
+            keys[infos[0]] = infos[1:]
+
+    return keys
+
+
 class NaiveBayesClassifier(object):
 
     def __init__(self, sentences, labels):
@@ -172,15 +183,78 @@ class NaiveBayesClassifier(object):
             self.words = ast.literal_eval(words)
 
 
-data_set = load_dataset('./data/train-labeled.txt')
-nb = NaiveBayesClassifier(sentences = data_set[2], labels = data_set[1])
-nb.learn()
+def calc_precision_recall(test_result, true_label, pos_tag, i):
 
-results = dict()
-result_list = list()
-ids, test_set = load_dev_set('./data/dev-text.txt')
-for i in range(len(test_set)):
-    re = nb.classify(test_set[i])
-    results[ids[i]] = re
-    result_list.append(re)
-    print(re)
+    true_pos_count = 0
+    true_neg_count = 0
+    false_pos_count = 0
+    false_neg_count = 0
+
+    for k in test_result:
+
+        test_re = test_result[k][i]
+        lbl = true_label[k][i]
+        if lbl == pos_tag:
+            if test_re == lbl:
+                true_pos_count += 1
+            else:
+                false_pos_count += 1
+        else:
+            if test_re == lbl:
+                false_neg_count += 1
+            else:
+                true_neg_count += 1
+
+    # print(true_pos_count, true_neg_count, false_pos_count, false_neg_count)
+
+    precision = true_pos_count / (true_pos_count+false_pos_count)
+    recall = true_pos_count / (true_pos_count + false_neg_count)
+    print(precision, recall)
+
+    return precision, recall
+
+
+def main():
+    data_set = load_dataset('./data/train-labeled.txt')
+    nb = NaiveBayesClassifier(sentences=data_set[2], labels=data_set[1])
+    nb.learn()
+
+    results = dict()
+    result_list = list()
+    ids, test_set = load_dev_set('./data/dev-text.txt')
+    for i in range(len(test_set)):
+        re = nb.classify(test_set[i])
+        results[ids[i]] = re
+        result_list.append(re)
+
+    keys = load_dev_key('./data/dev-key.txt')
+    print(keys)
+
+    print('\n-----\nTEST RESULT:\n')
+    correct_count = 0
+    label1_count = 0
+    label2_count = 0
+    total_count = 0
+    for k in results:
+
+        total_count += 1
+        test_re = results[k]
+        key = keys[k]
+
+        if test_re[0] == key[0] and test_re[1] == key[1]:
+            correct_count += 1
+        if test_re[0] == key[0] and key[0]:
+            label1_count += 1
+        if test_re[1] == key[1]:
+            label2_count += 1
+
+    print("Total count:\t"+str(total_count))
+    print('Correct count:\t'+str(correct_count)+'(%.4f)'%(correct_count/total_count))
+    print('Label #1 correct:\t'+str(label1_count)+'(%.4f)'%(label1_count/total_count))
+    print('Label #2 correct:\t' + str(label2_count) + '(%.4f)' % (label2_count / total_count))
+
+    calc_precision_recall(results, keys, '', 1)
+
+
+if __name__ == '__main__':
+    main()
