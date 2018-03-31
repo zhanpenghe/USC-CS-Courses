@@ -1,15 +1,17 @@
 import string, math
 
-table = str.maketrans({key: ' ' for key in string.punctuation})
-
+split_table = str.maketrans({key: ' '+key+' ' for key in string.punctuation})
+remove_table = str.maketrans({key: ' ' for key in [',', '.', '\"', '\'', '-', ';', ':', '$', '#']})
 
 def preprocess(sentence):
-    global table
 
-    return sentence.translate(table)
+    global split_table, remove_table
+
+    sentence = sentence.translate(split_table)
+    return sentence.translate(remove_table)
 
 
-def load_dataset(path):
+def load_training_set(path, mode=0):
     ids = []
     labels = []
     sentences = []
@@ -18,7 +20,10 @@ def load_dataset(path):
             infos = preprocess(line).split()
             # print(infos)
             ids.append(infos[0])
-            labels.append(infos[1:3])
+            if mode == 0:
+                labels.append(infos[1:3])
+            elif mode == 1:
+                labels.append([infos[1]+infos[2]])
             sentences.append(infos[3:])
 
     assert len(ids) == len(labels) and len(labels) == len(sentences)
@@ -57,7 +62,8 @@ class NaiveBayesClassifier(object):
         # Training data
         self.sentences = sentences
         self.labels_data = labels
-        self.training_data_len = len(sentences)
+        if sentences is not None:
+            self.training_data_len = len(sentences)
 
         # Features
         self.words = None
@@ -74,16 +80,17 @@ class NaiveBayesClassifier(object):
             self.posterior_prob.append({})
             count_sum = sum(count_prior[i].values())
             for lbl in self.labels[i]:
-                self.prior_prob[i][lbl] = math.log(count_prior[i][lbl]/count_sum)
+                self.prior_prob[i][lbl] = math.log(count_prior[i][lbl]/count_sum, math.e)
 
             for lbl in self.labels[i]:
                 if lbl not in self.posterior_prob[i]:
                     self.posterior_prob[i][lbl] = {}
+
                 count_sum = sum(count_posterier[i][lbl].values())
                 for word in self.words:
-                    self.posterior_prob[i][lbl][word] = math.log(count_posterier[i][lbl][word]/count_sum, 2.0)
-        print(self.prior_prob)
-        print(self.posterior_prob)
+                    self.posterior_prob[i][lbl][word] = math.log(count_posterier[i][lbl][word]/count_sum, math.e)
+        # print(self.prior_prob)
+        # print(self.posterior_prob)
 
     def _count(self, cleanup=False, cleanup_count=1):
 
@@ -99,7 +106,7 @@ class NaiveBayesClassifier(object):
         for i in range(self.training_data_len):
 
             labels = self.labels_data[i]
-
+            # print(labels)
             # Update priors
             for j in range(len(labels)):
                 if labels[j] not in count_priors[j]:
@@ -122,13 +129,13 @@ class NaiveBayesClassifier(object):
         if cleanup:
             pass
 
-        print(count_posteriors)
-        print(len(count_posteriors[0]['True'].keys()), len(count_posteriors[1]['Pos'].keys()))
-        print(count_priors)
+        # print(count_posteriors)
+        # print(len(count_posteriors[0]['True'].keys()), len(count_posteriors[1]['Pos'].keys()))
+        # print(count_priors)
 
         self.labels = [set(lbl.keys()) for lbl in count_priors]
         self.words = words_set
-        print(self.labels)
+        # print(self.labels)
 
         for word in words_set:
             for distribution in count_posteriors:
@@ -144,7 +151,7 @@ class NaiveBayesClassifier(object):
             return self.posterior_prob[label_id][label][word]
         except Exception as e:
             # print('Unknown word:', word)
-            return 1.0
+            return 0.0
 
     def classify(self, sentence):
 
@@ -155,7 +162,7 @@ class NaiveBayesClassifier(object):
             for lbl in self.labels[i]:
                 probs[i][lbl] = self.prior_prob[i][lbl]
                 for word in sentence:
-                    probs[i][lbl] += self._get_posterior(label_id=i, label=lbl, word=word.lower())
+                    probs[i][lbl] += self._get_posterior(label_id=i, label=lbl, word=word.strip().lower())
 
         result = []
 
@@ -215,7 +222,10 @@ def calc_precision_recall(test_result, true_label, pos_tag, i):
 
 
 def main():
-    data_set = load_dataset('./data/train-labeled.txt')
+
+    mode = 0
+
+    data_set = load_training_set('./data/train-labeled.txt', mode=mode)
     nb = NaiveBayesClassifier(sentences=data_set[2], labels=data_set[1])
     nb.learn()
 
@@ -228,17 +238,21 @@ def main():
         result_list.append(re)
 
     keys = load_dev_key('./data/dev-key.txt')
-    print(keys)
+    # print(keys)
 
     print('\n-----\nTEST RESULT:\n')
     correct_count = 0
     label1_count = 0
     label2_count = 0
     total_count = 0
+
     for k in results:
 
         total_count += 1
-        test_re = results[k]
+        if mode == 0:
+            test_re = results[k]
+        if mode == 1:
+            test_re = [results[k][0][0:4], results[k][0][4:]]
         key = keys[k]
 
         if test_re[0] == key[0] and test_re[1] == key[1]:
@@ -248,12 +262,13 @@ def main():
         if test_re[1] == key[1]:
             label2_count += 1
 
+
     print("Total count:\t"+str(total_count))
     print('Correct count:\t'+str(correct_count)+'(%.4f)'%(correct_count/total_count))
     print('Label #1 correct:\t'+str(label1_count)+'(%.4f)'%(label1_count/total_count))
     print('Label #2 correct:\t' + str(label2_count) + '(%.4f)' % (label2_count / total_count))
 
-    calc_precision_recall(results, keys, '', 1)
+    # calc_precision_recall(results, keys, '', 1)
 
 
 if __name__ == '__main__':
