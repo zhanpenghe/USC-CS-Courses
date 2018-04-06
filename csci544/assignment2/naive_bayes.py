@@ -17,14 +17,17 @@ def load_training_set(path, mode=0):
     sentences = []
     with open(path, 'r') as f:
         for line in f:
-            infos = preprocess(line).split()
-            # print(infos)
-            ids.append(infos[0])
-            if mode == 0:
-                labels.append(infos[1:3])
-            elif mode == 1:
-                labels.append([infos[1]+infos[2]])
-            sentences.append(infos[3:])
+            try:
+                infos = preprocess(line).split()
+
+                ids.append(infos[0])
+                if mode == 0:
+                    labels.append(infos[1:3])
+                elif mode == 1:
+                    labels.append([infos[1]+infos[2]])
+                sentences.append(infos[3:])
+            except Exception:
+                continue
 
     assert len(ids) == len(labels) and len(labels) == len(sentences)
 
@@ -36,9 +39,12 @@ def load_dev_set(path):
     ids = list()
     with open(path, 'r') as f:
         for line in f:
-            infos = preprocess(line).split()
-            ids.append(infos[0])
-            sentences.append(infos[1:])
+            try:
+                infos = preprocess(line).split()
+                ids.append(infos[0])
+                sentences.append(infos[1:])
+            except Exception:
+                continue
 
     return ids, sentences
 
@@ -56,7 +62,7 @@ def load_dev_key(path):
 
 class NaiveBayesClassifier(object):
 
-    def __init__(self, sentences, labels):
+    def __init__(self, sentences=None, labels=None):
         super(NaiveBayesClassifier, self).__init__()
 
         # Training data
@@ -118,16 +124,19 @@ class NaiveBayesClassifier(object):
             # Update posteriors
             sentence = self.sentences[i]
             for word in sentence:
-                word = word.strip().lower()
-                words_set.add(word)
-                for j in range(len(labels)):
-                    if word not in count_posteriors[j][labels[j]]:
-                        count_posteriors[j][labels[j]][word] = 0
-                    count_posteriors[j][labels[j]][word] += 1
+                try:
+                    word = word.strip().lower()
+                    words_set.add(word)
+                    for j in range(len(labels)):
+                        if word not in count_posteriors[j][labels[j]]:
+                            count_posteriors[j][labels[j]][word] = 0
+                        count_posteriors[j][labels[j]][word] += 1
+                except Exception:
+                    continue
 
         # cleanup count that is less than cleanup_count, default is 1
-        if cleanup:
-            pass
+        # if cleanup:
+        #     pass
 
         # print(count_posteriors)
         # print(len(count_posteriors[0]['True'].keys()), len(count_posteriors[1]['Pos'].keys()))
@@ -153,6 +162,12 @@ class NaiveBayesClassifier(object):
             # print('Unknown word:', word)
             return 0.0
 
+    def _get_prior(self, label_id, label):
+        try:
+            return self.prior_prob[label_id][label]
+        except Exception:
+            return float('-inf')
+
     def classify(self, sentence):
 
         probs = []
@@ -160,7 +175,7 @@ class NaiveBayesClassifier(object):
         for i in range(len(self.labels)):
             probs.append({})
             for lbl in self.labels[i]:
-                probs[i][lbl] = self.prior_prob[i][lbl]
+                probs[i][lbl] = self._get_prior(i, lbl)
                 for word in sentence:
                     probs[i][lbl] += self._get_posterior(label_id=i, label=lbl, word=word.strip().lower())
 

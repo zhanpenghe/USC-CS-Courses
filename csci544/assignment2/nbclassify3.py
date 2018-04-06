@@ -27,7 +27,7 @@ def main():
     test_data_path = args.path
     ids, sentences = load_dev_set(test_data_path)
 
-    nb = NB(sentences=None, labels=None)
+    nb = NB()
     nb.load_model('./nbmodel.txt')
 
     results = list()
