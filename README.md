@@ -10,3 +10,4 @@ Upload some of the assignments or projects for record.
 
 #### 2018SPRING:
 * [CSCI 544: Applied Natural Language Processing](csci544/)
+* [CSCI 545: Robotics](csci545/)
