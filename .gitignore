@@ -1,0 +1,9 @@
+# Mac
+.DS_STORE
+
+# Python
+*.pyc
+*-checkpoint.ipynb
+
+# Swap files
+*.swp

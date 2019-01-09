@@ -19,4 +19,3 @@ Upload some of the assignments or projects for record.
   * [P3](csci567/P3): Decision trees and boosting (specifically, Adaboost).
   * [P4](csci567/P4): K means and gaussian mixture models (GMM).
   * [P5](csci567/P5): Hidden markov model (HMM) and principal component analysis (PCA).
-
